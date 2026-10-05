@@ -1,0 +1,55 @@
+<!-- ====================== PAGE 2: TEXT DELAY ====================== -->
+<div data-id="68" id="page-textdelay" class="page">
+  <h2 data-id="69" style="font-size:20px;font-weight:700;margin-bottom:4px;">Text Delay Sequencer</h2>
+  <p data-id="70" style="font-size:13px;color:var(--muted);margin-bottom:16px;">Send timed text to Band 1 and Band 2</p>
+
+  <div data-id="71" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:16px;">
+    <!-- Band 1 -->
+    <div data-id="72" class="acard" style="border-left:3px solid var(--amber);">
+      <span data-id="73" style="display:inline-block;background:var(--amber);color:#000;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;margin-bottom:10px;">BAND 1</span>
+      <div data-id="74" style="margin-bottom:10px;">
+        <div data-id="75" style="display:flex;justify-content:space-between;margin-bottom:4px;"><label data-id="76" style="font-size:13px;font-weight:600;">Line 1</label><span data-id="77" id="b1l1-count-q3r4" style="font-size:11px;color:var(--muted);">0/255</span></div>
+        <input data-id="78" type="text" id="b1l1-s5t6" placeholder="First line of text..." maxlength="255" />
+      </div>
+      <div data-id="79" style="margin-bottom:10px;">
+        <div data-id="80" style="display:flex;justify-content:space-between;margin-bottom:4px;"><label data-id="81" style="font-size:13px;font-weight:600;">Line 2</label><span data-id="82" id="b1l2-count-u7v8" style="font-size:11px;color:var(--muted);">0/255</span></div>
+        <input data-id="83" type="text" id="b1l2-w9x0" placeholder="Second line of text..." maxlength="255" />
+      </div>
+      <div data-id="84">
+        <label data-id="85" style="font-size:13px;font-weight:600;display:block;margin-bottom:4px;">Delay (ms)</label>
+        <input data-id="86" type="number" id="b1delay-y1z2" value="2000" min="100" max="30000" step="100" />
+        <span data-id="87" style="font-size:11px;color:var(--muted);">Time between lines</span>
+      </div>
+    </div>
+    <!-- Band 2 -->
+    <div data-id="88" class="acard" style="border-left:3px solid var(--indigo);">
+      <span data-id="89" style="display:inline-block;background:var(--indigo);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;margin-bottom:10px;">BAND 2</span>
+      <div data-id="90" style="margin-bottom:10px;">
+        <div data-id="91" style="display:flex;justify-content:space-between;margin-bottom:4px;"><label data-id="92" style="font-size:13px;font-weight:600;">Line 1</label><span data-id="93" id="b2l1-count-a3b4" style="font-size:11px;color:var(--muted);">0/255</span></div>
+        <input data-id="94" type="text" id="b2l1-c5d6" placeholder="First line of text..." maxlength="255" />
+      </div>
+      <div data-id="95" style="margin-bottom:10px;">
+        <div data-id="96" style="display:flex;justify-content:space-between;margin-bottom:4px;"><label data-id="97" style="font-size:13px;font-weight:600;">Line 2</label><span data-id="98" id="b2l2-count-e7f8" style="font-size:11px;color:var(--muted);">0/255</span></div>
+        <input data-id="99" type="text" id="b2l2-g9h0" placeholder="Second line of text..." maxlength="255" />
+      </div>
+      <div data-id="100">
+        <label data-id="101" style="font-size:13px;font-weight:600;display:block;margin-bottom:4px;">Delay (ms)</label>
+        <input data-id="102" type="number" id="b2delay-i1j2" value="2000" min="100" max="30000" step="100" />
+        <span data-id="103" style="font-size:11px;color:var(--muted);">Time between lines</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Run Controls -->
+  <div data-id="104" class="acard">
+    <div data-id="105" style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+      <button data-id="106" class="abtn abtn-amber" id="seq-run-k3l4" style="min-width:160px;">▶ Run Sequence</button>
+      <button data-id="107" class="abtn abtn-danger" id="seq-stop-m5n6" style="display:none;">⏹ Stop</button>
+    </div>
+    <div data-id="108" style="background:var(--bg);border-radius:6px;height:8px;overflow:hidden;margin-bottom:8px;">
+      <div data-id="109" id="seq-progress-o7p8" style="height:100%;width:0%;background:var(--amber);transition:width 0.3s;border-radius:6px;"></div>
+    </div>
+    <p data-id="110" id="seq-step-label-q9r0" style="font-size:13px;color:var(--muted);margin-bottom:10px;">Ready</p>
+    <div data-id="111" id="seq-log-s1t2" class="log-area"></div>
+  </div>
+</div>

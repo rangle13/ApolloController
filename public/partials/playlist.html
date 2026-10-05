@@ -1,0 +1,109 @@
+<!-- ====================== PAGE 5: PLAYLIST ====================== -->
+<div data-id="210" id="page-playlist" class="page">
+  <h2 data-id="211" style="font-size:20px;font-weight:700;margin-bottom:16px;">Playlist Manager</h2>
+  <div data-id="212" style="display:flex;gap:16px;flex-wrap:wrap;">
+    <!-- Left: Library -->
+    <div data-id="213" style="width:320px;flex-shrink:0;">
+      <div data-id="214" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 data-id="215" style="font-size:16px;font-weight:700;">Playlists</h3>
+        <button data-id="216" class="abtn abtn-amber abtn-sm" id="new-playlist-g5h6">＋ New</button>
+      </div>
+      <div data-id="217" id="playlist-library-i7j8" style="display:flex;flex-direction:column;gap:10px;">
+        <div data-id="218" id="pl-empty-state-k9l0" style="text-align:center;padding:40px 0;">
+          <i data-id="219" data-lucide="list-music" class="w-10 h-10" style="color:var(--muted);margin:0 auto 10px;display:block;"></i>
+          <p data-id="220" style="font-size:13px;color:var(--muted);">No playlists yet</p>
+        </div>
+      </div>
+    </div>
+    <!-- Right: Editor/Player -->
+    <div data-id="221" style="flex:1;min-width:320px;">
+      <div data-id="222" style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--border);">
+        <button data-id="223" class="nav-tab active" id="pl-tab-editor-m1n2" data-pltab="editor">Editor</button>
+        <button data-id="224" class="nav-tab" id="pl-tab-player-o3p4" data-pltab="player">Player</button>
+      </div>
+
+      <!-- Editor Tab -->
+      <div data-id="225" id="pl-editor-q5r6">
+        <div data-id="226" id="pl-no-edit-s7t8" style="text-align:center;padding:40px 0;">
+          <p data-id="227" style="font-size:13px;color:var(--muted);">Select or create a playlist to edit</p>
+        </div>
+        <div data-id="228" id="pl-edit-form-u9v0" style="display:none;">
+          <div data-id="229" class="acard" style="margin-bottom:12px;">
+            <h4 data-id="230" style="font-size:14px;font-weight:700;margin-bottom:10px;">Playlist Settings</h4>
+            <div data-id="231" style="display:grid;gap:8px;">
+              <div data-id="232"><label data-id="233" style="font-size:12px;color:var(--muted);">Name</label><input data-id="234" type="text" id="ple-name-w1x2" /></div>
+              <div data-id="235"><label data-id="236" style="font-size:12px;color:var(--muted);">Description</label><input data-id="237" type="text" id="ple-desc-y3z4" /></div>
+              <div data-id="238" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+                <div data-id="239"><label data-id="240" style="font-size:12px;color:var(--muted);">Repeat (0=∞)</label><input data-id="241" type="number" id="ple-repeat-a5b6" min="0" max="999" value="0" style="width:80px;" /></div>
+                <div data-id="242" style="display:flex;align-items:center;gap:6px;"><input data-id="243" type="checkbox" id="ple-shuffle-c7d8" style="width:auto;" /><label data-id="244" for="ple-shuffle-c7d8" style="font-size:12px;">Shuffle</label></div>
+                <div data-id="245"><label data-id="246" style="font-size:12px;color:var(--muted);">End Preset ID</label><input data-id="247" type="number" id="ple-endpreset-e9f0" min="0" max="250" value="0" style="width:80px;" /></div>
+              </div>
+              <div data-id="248">
+                <label data-id="249" style="font-size:12px;color:var(--muted);">Target Devices</label>
+                <div data-id="250" id="ple-targets-g1h2" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;"></div>
+              </div>
+              <button data-id="251" class="abtn abtn-amber abtn-sm" id="ple-save-settings-i3j4">Save Settings</button>
+            </div>
+          </div>
+          <!-- Steps -->
+          <div data-id="252" class="acard">
+            <div data-id="253" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <h4 data-id="254" style="font-size:14px;font-weight:700;">Steps</h4>
+              <button data-id="255" class="abtn abtn-amber abtn-sm" id="ple-add-step-k5l6">＋ Add Step</button>
+            </div>
+            <div data-id="256" id="ple-step-list-m7n8" style="display:flex;flex-direction:column;gap:4px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Player Tab -->
+      <div data-id="257" id="pl-player-o9p0" style="display:none;">
+        <div data-id="258" class="acard" style="margin-bottom:12px;">
+          <div data-id="259" style="display:flex;justify-content:center;gap:10px;margin-bottom:16px;">
+            <button data-id="260" class="transport-btn" id="tp-prev-q1r2" title="Previous">⏮</button>
+            <button data-id="261" class="transport-btn" id="tp-stop-s3t4" title="Stop">⏹</button>
+            <button data-id="262" class="transport-btn primary" id="tp-play-u5v6" title="Play/Pause">▶</button>
+            <button data-id="263" class="transport-btn" id="tp-next-w7x8" title="Next">⏭</button>
+            <button data-id="264" class="transport-btn" id="tp-shuffle-y9z0" title="Shuffle">🔀</button>
+            <button data-id="265" class="transport-btn" id="tp-loop-a1b2" title="Loop">🔁</button>
+          </div>
+          <div data-id="266" id="player-now-c3d4" style="text-align:center;margin-bottom:12px;">
+            <p data-id="267" style="font-size:16px;font-weight:700;" id="player-pl-name-e5f6">—</p>
+            <p data-id="268" style="font-size:13px;color:var(--muted);" id="player-step-info-g7h8">No playlist loaded</p>
+            <div data-id="269" style="background:var(--bg);border-radius:6px;height:6px;overflow:hidden;margin:10px 0;">
+              <div data-id="270" id="player-progress-i9j0" style="height:100%;width:0%;background:var(--amber);transition:width 0.1s;border-radius:6px;"></div>
+            </div>
+            <p data-id="271" style="font-size:12px;font-family:monospace;color:var(--amber);" id="player-countdown-k1l2">0.0s remaining</p>
+          </div>
+        </div>
+        <div data-id="272" class="acard" style="margin-bottom:12px;">
+          <h4 data-id="273" style="font-size:14px;font-weight:700;margin-bottom:8px;">Steps</h4>
+          <div data-id="274" id="player-step-list-m3n4" style="display:flex;flex-direction:column;gap:4px;"></div>
+        </div>
+        <div data-id="275" class="acard">
+          <h4 data-id="276" style="font-size:14px;font-weight:700;margin-bottom:8px;">Log</h4>
+          <div data-id="277" id="player-log-o5p6" class="log-area" style="max-height:160px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Step Type Modal -->
+<div data-id="278" id="step-modal-q7r8" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:none;align-items:center;justify-content:center;">
+  <div data-id="279" class="acard" style="max-width:400px;width:90%;margin:auto;">
+    <h4 data-id="280" style="font-size:15px;font-weight:700;margin-bottom:12px;">Add Step</h4>
+    <div data-id="281" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button data-id="282" class="acard" id="add-preset-step-s9t0" style="cursor:pointer;text-align:center;padding:20px;">
+        <span data-id="283" style="font-size:24px;">📺</span>
+        <p data-id="284" style="font-size:13px;font-weight:600;margin-top:6px;">Device Preset</p>
+      </button>
+      <button data-id="285" class="acard" id="add-effect-step-u1v2" style="cursor:pointer;text-align:center;padding:20px;">
+        <span data-id="286" style="font-size:24px;">✨</span>
+        <p data-id="287" style="font-size:13px;font-weight:600;margin-top:6px;">Effect Step</p>
+      </button>
+    </div>
+    <button data-id="288" class="abtn abtn-ghost abtn-sm" id="close-step-modal-w3x4" style="width:100%;margin-top:10px;">Cancel</button>
+  </div>
+</div>
+

@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="dark" />
+<title>Apollo M-1 WLED Controller</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        bg: '#0f1117', card: '#1a1d27', border: '#2a2d3a',
+        amber: '#f59e0b', indigo: '#6366f1', txt: '#f1f5f9',
+        muted: '#64748b', success: '#22c55e', danger: '#ef4444',
+      }
+    }
+  }
+};
+</script>
+<script src="https://unpkg.com/lucide@latest" defer></script>
+<link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+<app-icon data-id="1" hidden data-icon="sun" data-palette="Yellow"></app-icon>
+
+<!-- NAVBAR -->
+<nav data-id="2" id="navbar-abc1" style="position:fixed;top:0;left:0;right:0;height:56px;background:var(--bg);border-bottom:1px solid var(--border);z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 16px;">
+  <div data-id="3" style="display:flex;align-items:center;gap:8px;">
+    <span data-id="4" style="width:10px;height:10px;border-radius:50%;background:var(--amber);display:inline-block;"></span>
+    <span data-id="5" style="font-weight:700;font-size:16px;color:#fff;">Apollo M-1</span>
+  </div>
+  <div data-id="6" class="mobile-nav-scroll" style="gap:0;flex:1;overflow-x:auto;">
+    <button data-id="7" class="nav-tab active" data-nav="dashboard">Dashboard</button>
+    <button data-id="8" class="nav-tab" data-nav="textdelay">Text Delay</button>
+    <button data-id="9" class="nav-tab" data-nav="overlay">Overlay</button>
+    <button data-id="10" class="nav-tab" data-nav="devices">Devices</button>
+    <button data-id="11" class="nav-tab" data-nav="playlist">Playlist</button>
+    <button class="nav-tab" data-nav="segments" style="color:#818cf8;">Segments ⊞</button>
+  </div>
+</nav>
+
+<main data-id="12" style="padding-top:60px;">
+
+<!-- ====================== PAGE 1: DASHBOARD ====================== -->
+<div data-id="13" id="page-dashboard" class="page active">
+
+  <!-- Connection Card -->
+  <div data-id="14" class="acard" style="margin-bottom:16px;">
+    <div data-id="15" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+      <label data-id="16" style="font-size:13px;font-weight:600;white-space:nowrap;">Apollo M-1 Device IP:</label>
+      <input data-id="17" type="text" id="ip-input-d1a2" placeholder="e.g. 192.168.1.45" style="flex:1;min-width:160px;" />
+      <select data-id="18" id="saved-device-dd-x1b3" style="width:auto;min-width:140px;">
+        <option data-id="19" value="">Or use saved device…</option>
+      </select>
+      <button data-id="20" class="abtn abtn-amber" id="connect-btn-c3d4">Connect</button>
+    </div>
+    <div data-id="21" style="margin-top:10px;">
+      <span data-id="22" class="status-pill" id="conn-status-e5f6">
+        <span data-id="23" class="status-dot" style="background:var(--muted);"></span>
+        <span data-id="24" id="conn-label-g7h8">Disconnected</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- Master Controls -->
+  <div data-id="25" class="acard" style="margin-bottom:16px;">
+    <h3 data-id="26" style="font-size:15px;font-weight:700;margin-bottom:12px;">Master Controls</h3>
+    <div data-id="27" style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;">
+      <div data-id="28" style="display:flex;align-items:center;gap:10px;">
+        <span data-id="29" style="font-size:13px;color:var(--muted);">OFF</span>
+        <input data-id="30" type="checkbox" id="power-toggle-i9j0" class="toggle-input" />
+        <label data-id="31" for="power-toggle-i9j0" class="toggle-track" id="power-label-k1l2"></label>
+        <span data-id="32" style="font-size:13px;color:var(--muted);">ON</span>
+      </div>
+      <div data-id="33" style="display:flex;align-items:center;gap:10px;flex:1;min-width:180px;max-width:400px;">
+        <label data-id="34" style="font-size:13px;font-weight:600;white-space:nowrap;">Brightness</label>
+        <input data-id="35" type="range" id="bri-slider-m3n4" min="0" max="255" value="200" />
+        <span data-id="36" id="bri-val-o5p6" style="font-size:13px;font-weight:600;min-width:28px;text-align:right;">200</span>
+      </div>
+      <button data-id="37" class="abtn abtn-danger" id="alloff-btn-q7r8">All Off</button>
+    </div>
+  </div>
+
+  <!-- Quick Presets -->
+  <div data-id="38" class="acard" style="margin-bottom:16px;">
+    <h3 data-id="39" style="font-size:15px;font-weight:700;margin-bottom:12px;">Quick Presets</h3>
+    <select data-id="40" id="preset-sel-s9t0" style="margin-bottom:8px;"></select>
+    <p data-id="41" id="preset-desc-u1v2" style="font-size:13px;color:var(--muted);margin-bottom:12px;min-height:20px;"></p>
+    <button data-id="42" class="abtn abtn-amber" id="apply-preset-w3x4">Apply Preset</button>
+  </div>
+
+  <!-- Overlay Presets -->
+  <div data-id="43" class="acard" style="margin-bottom:16px;">
+    <h3 data-id="44" style="font-size:15px;font-weight:700;margin-bottom:12px;">Overlay Presets</h3>
+    <select data-id="45" id="overlay-preset-sel-y5z6" style="margin-bottom:8px;"></select>
+    <p data-id="46" id="overlay-preset-desc-a7b8" style="font-size:13px;color:var(--muted);margin-bottom:12px;min-height:20px;"></p>
+    <button data-id="47" class="abtn abtn-amber" id="apply-overlay-preset-c9d0">Apply Overlay</button>
+  </div>
+
+  <!-- Active Playlist -->
+  <div data-id="48" class="acard" style="margin-bottom:16px;">
+    <h3 data-id="49" style="font-size:15px;font-weight:700;margin-bottom:10px;">Active Playlist</h3>
+    <p data-id="50" id="active-pl-label-e1f2" style="font-size:13px;color:var(--muted);margin-bottom:10px;">No playlist playing</p>
+    <div data-id="51" style="display:flex;gap:8px;align-items:center;">
+      <button data-id="52" class="abtn abtn-amber abtn-sm" id="dash-pl-play-g3h4">▶ Play</button>
+      <button data-id="53" class="abtn abtn-danger abtn-sm" id="dash-pl-stop-i5j6">⏹ Stop</button>
+      <button data-id="54" class="abtn abtn-ghost abtn-sm" id="dash-pl-manage-k7l8" style="margin-left:auto;">Manage →</button>
+    </div>
+  </div>
+
+  <!-- Bottom Nav Cards -->
+  <div data-id="55" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;">
+    <div data-id="56" class="acard" style="display:flex;flex-direction:column;gap:8px;">
+      <div data-id="57" style="display:flex;align-items:center;gap:8px;">
+        <i data-id="58" data-lucide="type" class="w-5 h-5" style="color:var(--amber);"></i>
+        <h4 data-id="59" style="font-size:14px;font-weight:700;">Text Delay</h4>
+      </div>
+      <p data-id="60" style="font-size:13px;color:var(--muted);">Send timed text sequences to LED bands</p>
+      <button data-id="61" class="abtn abtn-amber abtn-sm" id="goto-textdelay-m9n0" style="align-self:flex-start;">Open →</button>
+    </div>
+    <div data-id="62" class="acard" style="display:flex;flex-direction:column;gap:8px;">
+      <div data-id="63" style="display:flex;align-items:center;gap:8px;">
+        <i data-id="64" data-lucide="layers" class="w-5 h-5" style="color:var(--amber);"></i>
+        <h4 data-id="65" style="font-size:14px;font-weight:700;">Overlay</h4>
+      </div>
+      <p data-id="66" style="font-size:13px;color:var(--muted);">Design matrix overlay zones visually</p>
+      <button data-id="67" class="abtn abtn-amber abtn-sm" id="goto-overlay-o1p2" style="align-self:flex-start;">Open →</button>
+    </div>
+    <div class="acard" style="display:flex;flex-direction:column;gap:8px;border-left:3px solid #6366f1;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:18px;">⊞</span>
+        <h4 style="font-size:14px;font-weight:700;">Segment Designer</h4>
+      </div>
+      <p style="font-size:13px;color:var(--muted);">Draw and configure WLED segments visually on the matrix grid</p>
+      <button class="abtn abtn-indigo abtn-sm" id="goto-segments-btn" style="align-self:flex-start;">Open →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== PAGE 2: TEXT DELAY ====================== -->
+<div data-id="68" id="page-textdelay" class="page">
+  <h2 data-id="69" style="font-size:20px;font-weight:700;margin-bottom:4px;">Text Delay Sequencer</h2>
+  <p data-id="70" style="font-size:13px;color:var(--muted);margin-bottom:16px;">Send timed text to Band 1 and Band 2</p>
+
+  <div data-id="71" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:16px;">
+    <!-- Band 1 -->
+    <div data-id="72" class="acard" style="border-left:3px solid var(--amber);">
+      <span data-id="73" style="display:inline-block;background:var(--amber);color:#000;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;margin-bottom:10px;">BAND 1</span>
+      <div data-id="74" style="margin-bottom:10px;">
+        <div data-id="75" style="display:flex;justify-content:space-between;margin-bottom:4px;"><label data-id="76" style="font-size:13px;font-weight:600;">Line 1</label><span data-id="77" id="b1l1-count-q3r4" style="font-size:11px;color:var(--muted);">0/255</span></div>
+        <input data-id="78" type="text" id="b1l1-s5t6" placeholder="First line of text..." maxlength="255" />
+      </div>
+      <div data-id="79" style="margin-bottom:10px;">
+        <div data-id="80" style="display:flex;justify-content:space-between;margin-bottom:4px;"><label data-id="81" style="font-size:13px;font-weight:600;">Line 2</label><span data-id="82" id="b1l2-count-u7v8" style="font-size:11px;color:var(--muted);">0/255</span></div>
+        <input data-id="83" type="text" id="b1l2-w9x0" placeholder="Second line of text..." maxlength="255" />
+      </div>
+      <div data-id="84">
+        <label data-id="85" style="font-size:13px;font-weight:600;display:block;margin-bottom:4px;">Delay (ms)</label>
+        <input data-id="86" type="number" id="b1delay-y1z2" value="2000" min="100" max="30000" step="100" />
+        <span data-id="87" style="font-size:11px;color:var(--muted);">Time between lines</span>
+      </div>
+    </div>
+    <!-- Band 2 -->
+    <div data-id="88" class="acard" style="border-left:3px solid var(--indigo);">
+      <span data-id="89" style="display:inline-block;background:var(--indigo);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;margin-bottom:10px;">BAND 2</span>
+      <div data-id="90" style="margin-bottom:10px;">
+        <div data-id="91" style="display:flex;justify-content:space-between;margin-bottom:4px;"><label data-id="92" style="font-size:13px;font-weight:600;">Line 1</label><span data-id="93" id="b2l1-count-a3b4" style="font-size:11px;color:var(--muted);">0/255</span></div>
+        <input data-id="94" type="text" id="b2l1-c5d6" placeholder="First line of text..." maxlength="255" />
+      </div>
+      <div data-id="95" style="margin-bottom:10px;">
+        <div data-id="96" style="display:flex;justify-content:space-between;margin-bottom:4px;"><label data-id="97" style="font-size:13px;font-weight:600;">Line 2</label><span data-id="98" id="b2l2-count-e7f8" style="font-size:11px;color:var(--muted);">0/255</span></div>
+        <input data-id="99" type="text" id="b2l2-g9h0" placeholder="Second line of text..." maxlength="255" />
+      </div>
+      <div data-id="100">
+        <label data-id="101" style="font-size:13px;font-weight:600;display:block;margin-bottom:4px;">Delay (ms)</label>
+        <input data-id="102" type="number" id="b2delay-i1j2" value="2000" min="100" max="30000" step="100" />
+        <span data-id="103" style="font-size:11px;color:var(--muted);">Time between lines</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Run Controls -->
+  <div data-id="104" class="acard">
+    <div data-id="105" style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+      <button data-id="106" class="abtn abtn-amber" id="seq-run-k3l4" style="min-width:160px;">▶ Run Sequence</button>
+      <button data-id="107" class="abtn abtn-danger" id="seq-stop-m5n6" style="display:none;">⏹ Stop</button>
+    </div>
+    <div data-id="108" style="background:var(--bg);border-radius:6px;height:8px;overflow:hidden;margin-bottom:8px;">
+      <div data-id="109" id="seq-progress-o7p8" style="height:100%;width:0%;background:var(--amber);transition:width 0.3s;border-radius:6px;"></div>
+    </div>
+    <p data-id="110" id="seq-step-label-q9r0" style="font-size:13px;color:var(--muted);margin-bottom:10px;">Ready</p>
+    <div data-id="111" id="seq-log-s1t2" class="log-area"></div>
+  </div>
+</div>
+
+<!-- ====================== PAGE 3: OVERLAY ====================== -->
+<div data-id="112" id="page-overlay" class="page">
+  <h2 data-id="113" style="font-size:20px;font-weight:700;margin-bottom:16px;">Overlay Builder</h2>
+  <div data-id="114" style="display:flex;gap:16px;flex-wrap:wrap;">
+    <!-- Sidebar Layers -->
+    <div data-id="115" style="width:220px;flex-shrink:0;">
+      <div data-id="116" class="acard" style="min-height:300px;">
+        <div data-id="117" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <h4 data-id="118" style="font-size:14px;font-weight:700;">Layers</h4>
+          <button data-id="119" class="abtn abtn-amber abtn-sm" id="add-box-u3v4">＋ Add Box</button>
+        </div>
+        <div data-id="120" id="layer-list-w5x6" style="display:flex;flex-direction:column;gap:4px;">
+          <p data-id="121" style="font-size:12px;color:var(--muted);text-align:center;padding:20px 0;" id="no-boxes-y7z8">No boxes yet</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas Area -->
+    <div data-id="122" style="flex:1;min-width:300px;">
+      <div data-id="123" class="acard" style="padding:8px;">
+        <div style="width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0 8px;">
+          <div id="overlay-device-title" style="font-size:15px;font-weight:700;color:var(--amber);line-height:1.2;">M1</div>
+          <div id="canvas-matrix-name-a1b2" style="font-size:11px;color:var(--muted);margin-top:2px;">64×64</div>
+        </div>
+        <div id="overlay-canvas-c3d4" style="position:relative;width:100%;aspect-ratio:1;background:#0a0a0f;border:1px solid var(--border);border-radius:6px;overflow:hidden;cursor:crosshair;">
+          <div id="coord-pill-e5f6" style="position:absolute;top:6px;right:6px;z-index:20;background:rgba(0,0,0,0.8);color:var(--amber);font-family:monospace;font-size:11px;padding:3px 8px;border-radius:4px;pointer-events:none;">X: —  Y: —</div>
+        </div>
+        <p id="canvas-status-g7h8" style="font-size:11px;font-family:monospace;color:var(--amber);margin-top:4px;text-align:center;">No box selected — click a box to select</p>
+      </div>
+      <div data-id="131" style="display:flex;gap:10px;margin-top:12px;">
+        <button data-id="132" class="abtn abtn-amber" id="apply-matrix-i9j0">Apply to Matrix</button>
+        <button class="abtn abtn-ghost" id="overlay-fetch-btn">Fetch from Device</button>
+        <button data-id="133" class="abtn abtn-ghost" id="reset-boxes-k1l2">Reset All</button>
+      </div>
+    </div>
+
+    <!-- Properties Panel -->
+    <div data-id="134" style="width:240px;flex-shrink:0;">
+      <div data-id="135" class="acard" style="min-height:300px;" id="props-panel-m3n4">
+        <h4 data-id="136" style="font-size:14px;font-weight:700;margin-bottom:10px;">Properties</h4>
+        <div data-id="137" id="props-empty-o5p6">
+          <p data-id="138" style="font-size:13px;color:var(--muted);text-align:center;padding:30px 0;">No box selected</p>
+        </div>
+        <div data-id="139" id="props-form-q7r8" style="display:none;">
+          <div data-id="140" style="margin-bottom:8px;"><label data-id="141" style="font-size:12px;color:var(--muted);">Name</label><input data-id="142" type="text" id="prop-name-s9t0" style="font-size:13px;" /></div>
+          <div data-id="143" style="margin-bottom:8px;display:flex;align-items:center;gap:8px;"><label data-id="144" style="font-size:12px;color:var(--muted);">Color</label><input data-id="145" type="color" id="prop-color-u1v2" value="#f59e0b" /></div>
+          <div data-id="146" style="margin-bottom:8px;"><label data-id="147" style="font-size:12px;color:var(--muted);">Opacity</label><div data-id="148" style="display:flex;gap:6px;align-items:center;"><input data-id="149" type="range" id="prop-opacity-w3x4" min="10" max="100" value="60" /><span data-id="150" id="prop-opacity-val-y5z6" style="font-size:12px;min-width:32px;">60%</span></div></div>
+          <div data-id="151" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+            <div data-id="152"><label data-id="153" style="font-size:11px;color:var(--muted);">X Start</label><input data-id="154" type="number" id="prop-x1-a7b8" min="0" style="font-size:12px;" /></div>
+            <div data-id="155"><label data-id="156" style="font-size:11px;color:var(--muted);">X Stop</label><input data-id="157" type="number" id="prop-x2-c9d0" min="1" style="font-size:12px;" /></div>
+            <div data-id="158"><label data-id="159" style="font-size:11px;color:var(--muted);">Y Start</label><input data-id="160" type="number" id="prop-y1-e1f2" min="0" style="font-size:12px;" /></div>
+            <div data-id="161"><label data-id="162" style="font-size:11px;color:var(--muted);">Y Stop</label><input data-id="163" type="number" id="prop-y2-g3h4" min="1" style="font-size:12px;" /></div>
+          </div>
+          <div data-id="164" style="margin-bottom:10px;"><label data-id="165" style="font-size:12px;color:var(--muted);">Effect</label><select id="prop-effect-i5j6" style="font-size:13px;">
+  <option value="0">0 – Solid</option>
+  <option value="1">1 – Blink</option>
+  <option value="2">2 – Breathe</option>
+  <option value="3">3 – Wipe</option>
+  <option value="4">4 – Wipe Random</option>
+  <option value="5">5 – Random Colors</option>
+  <option value="6">6 – Sweep</option>
+  <option value="7">7 – Dynamic</option>
+  <option value="8">8 – Colorloop</option>
+  <option value="9">9 – Rainbow</option>
+  <option value="10">10 – Scan</option>
+  <option value="11">11 – Dual Scan</option>
+  <option value="12">12 – Fade</option>
+  <option value="13">13 – Chase</option>
+  <option value="14">14 – Chase Random</option>
+  <option value="15">15 – Chase Rainbow</option>
+  <option value="16">16 – Chase Flash</option>
+  <option value="17">17 – Chase Flash Rnd</option>
+  <option value="18">18 – Rainbow Runner</option>
+  <option value="19">19 – Colorful</option>
+  <option value="20">20 – Traffic Light</option>
+  <option value="21">21 – Sweep Random</option>
+  <option value="22">22 – Running 2</option>
+  <option value="23">23 – Red &amp; Blue</option>
+  <option value="24">24 – Stream</option>
+  <option value="25">25 – Scanner</option>
+  <option value="26">26 – Lighthouse</option>
+  <option value="27">27 – Fireworks</option>
+  <option value="28">28 – Rain</option>
+  <option value="29">29 – Merry Christmas</option>
+  <option value="30">30 – Fire Flicker</option>
+  <option value="31">31 – Gradient</option>
+  <option value="32">32 – Loading</option>
+  <option value="41">41 – Fairy</option>
+  <option value="42">42 – Two Dots</option>
+  <option value="43">43 – Fairy Twinkle</option>
+  <option value="44">44 – Running Dual</option>
+  <option value="45">45 – Halloween</option>
+  <option value="46">46 – Tri Chase</option>
+  <option value="47">47 – Tri Wipe</option>
+  <option value="48">48 – Tri Fade</option>
+  <option value="49">49 – Lightning</option>
+  <option value="50">50 – ICU</option>
+  <option value="51">51 – Multi Comet</option>
+  <option value="52">52 – Dual Scanner</option>
+  <option value="53">53 – Stream 2</option>
+  <option value="54">54 – Oscillate</option>
+  <option value="55">55 – Pride 2015</option>
+  <option value="56">56 – Juggle</option>
+  <option value="57">57 – Palette</option>
+  <option value="58">58 – Fire 2012</option>
+  <option value="59">59 – Colorwaves</option>
+  <option value="60">60 – BPM</option>
+  <option value="61">61 – Fill Noise 8</option>
+  <option value="62">62 – Noise 16 1</option>
+  <option value="63">63 – Noise 16 2</option>
+  <option value="64">64 – Noise 16 3</option>
+  <option value="65">65 – Noise 16 4</option>
+  <option value="66">66 – Colortwinkles</option>
+  <option value="67">67 – Lake</option>
+  <option value="68">68 – Meteor</option>
+  <option value="69">69 – Meteor Smooth</option>
+  <option value="70">70 – Railway</option>
+  <option value="71">71 – Ripple</option>
+  <option value="72">72 – Twinklefox</option>
+  <option value="73">73 – Twinklecat</option>
+  <option value="74">74 – Halloween Eyes</option>
+  <option value="75">75 – Solid Pattern</option>
+  <option value="76">76 – Solid Pattern Tri</option>
+  <option value="77">77 – Spots</option>
+  <option value="78">78 – Spots Fade</option>
+  <option value="79">79 – Glitter</option>
+  <option value="80">80 – Candle</option>
+  <option value="81">81 – Fireworks Starburst</option>
+  <option value="82">82 – Fireworks 1D</option>
+  <option value="83">83 – Bouncing Balls</option>
+  <option value="84">84 – Sinelon</option>
+  <option value="85">85 – Sinelon Dual</option>
+  <option value="86">86 – Sinelon Rainbow</option>
+  <option value="87">87 – Popcorn</option>
+  <option value="88">88 – Drip</option>
+  <option value="89">89 – Plasma</option>
+  <option value="90">90 – Percent</option>
+  <option value="91">91 – Ripple Rainbow</option>
+  <option value="92">92 – Heartbeat</option>
+  <option value="93">93 – Pacifica</option>
+  <option value="94">94 – Candle Multi</option>
+  <option value="95">95 – Solid Glitter</option>
+  <option value="96">96 – Sunrise</option>
+  <option value="97">97 – Phased</option>
+  <option value="98">98 – Twinkleup</option>
+  <option value="99">99 – Noise Pal</option>
+  <option value="100">100 – Sine</option>
+  <option value="101">101 – Phased Noise</option>
+  <option value="102">102 – Flow</option>
+  <option value="103">103 – Chunchun</option>
+  <option value="104">104 – Dancing Shadows</option>
+  <option value="105">105 – Washing Machine</option>
+</select></div>
+          <hr style="border-color:var(--border);margin:10px 0;" />
+          <p style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">WLED Settings</p>
+          <div style="margin-bottom:6px;">
+            <label style="font-size:12px;color:var(--muted);">Palette</label>
+            <select id="prop-pal-i5j7" style="font-size:13px;">
+              <option value="0">0 – Default</option>
+              <option value="1">1 – Random</option>
+              <option value="2">2 – Primary</option>
+              <option value="6">6 – Party</option>
+              <option value="7">7 – Cloud</option>
+              <option value="8">8 – Lava</option>
+              <option value="9">9 – Ocean</option>
+              <option value="10">10 – Forest</option>
+              <option value="11">11 – Rainbow</option>
+              <option value="35">35 – Fire</option>
+            </select>
+          </div>
+          <div style="margin-bottom:6px;">
+            <label style="font-size:12px;color:var(--muted);">Speed <span id="prop-sx-val" style="color:var(--amber);">128</span></label>
+            <input type="range" id="prop-sx-i5j8" min="0" max="255" value="128" />
+          </div>
+          <div style="margin-bottom:6px;">
+            <label style="font-size:12px;color:var(--muted);">Intensity <span id="prop-ix-val" style="color:var(--amber);">128</span></label>
+            <input type="range" id="prop-ix-i5j9" min="0" max="255" value="128" />
+          </div>
+          <div style="margin-bottom:6px;display:flex;align-items:center;gap:8px;">
+            <label style="font-size:12px;color:var(--muted);">Primary</label>
+            <input type="color" id="prop-col1-i5k0" value="#ffffff" />
+            <label style="font-size:12px;color:var(--muted);">Secondary</label>
+            <input type="color" id="prop-col2-i5k1" value="#000000" />
+          </div>
+          <hr style="border-color:var(--border);margin:10px 0;" />
+          <button data-id="171" class="abtn abtn-danger abtn-sm" id="delete-box-k7l8" style="width:100%;margin-bottom:6px;">Delete Box</button>
+          <button data-id="172" class="abtn abtn-ghost abtn-sm" id="json-preview-btn-m9n0" style="width:100%;">JSON Preview</button>
+          <pre data-id="173" id="json-preview-o1p2" style="display:none;font-size:11px;background:var(--bg);padding:8px;border-radius:6px;margin-top:6px;overflow:auto;max-height:120px;color:var(--amber);"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== PAGE 4: DEVICES ====================== -->
+<div data-id="174" id="page-devices" class="page">
+  <h2 data-id="175" style="font-size:20px;font-weight:700;margin-bottom:16px;">Device Manager</h2>
+  <div data-id="176" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;">
+    <!-- Matrices -->
+    <div data-id="177">
+      <div data-id="178" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 data-id="179" style="font-size:16px;font-weight:700;">LED Matrices</h3>
+        <button data-id="180" class="abtn abtn-amber abtn-sm" id="add-matrix-q3r4">＋ Add Matrix</button>
+      </div>
+      <div data-id="181" id="matrix-form-s5t6" class="acard" style="display:none;margin-bottom:12px;">
+        <div data-id="182" style="display:grid;gap:8px;">
+          <input data-id="183" type="text" id="mf-name-u7v8" placeholder="Name *" />
+          <input data-id="184" type="text" id="mf-ip-w9x0" placeholder="IP Address *" />
+          <div data-id="185" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <input data-id="186" type="number" id="mf-w-y1z2" value="64" min="1" placeholder="Width" />
+            <input data-id="187" type="number" id="mf-h-a3b4" value="64" min="1" placeholder="Height" />
+          </div>
+          <textarea data-id="188" id="mf-notes-c5d6" placeholder="Notes (optional)" rows="2" style="resize:vertical;"></textarea>
+          <div data-id="189" style="display:flex;gap:8px;">
+            <button data-id="190" class="abtn abtn-amber abtn-sm" id="mf-save-e7f8">Save</button>
+            <button data-id="191" class="abtn abtn-ghost abtn-sm" id="mf-cancel-g9h0">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div data-id="192" id="matrix-list-i1j2" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+    <!-- Strings -->
+    <div data-id="193">
+      <div data-id="194" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 data-id="195" style="font-size:16px;font-weight:700;">LED Strings</h3>
+        <button data-id="196" class="abtn abtn-indigo abtn-sm" id="add-string-k3l4">＋ Add String</button>
+      </div>
+      <div data-id="197" id="string-form-m5n6" class="acard" style="display:none;margin-bottom:12px;">
+        <div data-id="198" style="display:grid;gap:8px;">
+          <input data-id="199" type="text" id="sf-name-o7p8" placeholder="Name *" />
+          <input data-id="200" type="text" id="sf-ip-q9r0" placeholder="IP Address *" />
+          <input data-id="201" type="number" id="sf-len-s1t2" value="300" min="1" placeholder="Length" />
+          <textarea data-id="202" id="sf-notes-u3v4" placeholder="Notes (optional)" rows="2" style="resize:vertical;"></textarea>
+          <div data-id="203" style="display:flex;gap:8px;">
+            <button data-id="204" class="abtn abtn-indigo abtn-sm" id="sf-save-w5x6">Save</button>
+            <button data-id="205" class="abtn abtn-ghost abtn-sm" id="sf-cancel-y7z8">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div data-id="206" id="string-list-a9b0" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+  </div>
+  <!-- Active Device Summary -->
+  <div data-id="207" class="acard" style="margin-top:16px;" id="active-device-summary-c1d2">
+    <h4 data-id="208" style="font-size:14px;font-weight:700;margin-bottom:6px;">Active Device</h4>
+    <p data-id="209" id="active-dev-info-e3f4" style="font-size:13px;color:var(--muted);">No active device set</p>
+  </div>
+</div>
+
+<!-- ====================== PAGE 5: PLAYLIST ====================== -->
+<div data-id="210" id="page-playlist" class="page">
+  <h2 data-id="211" style="font-size:20px;font-weight:700;margin-bottom:16px;">Playlist Manager</h2>
+  <div data-id="212" style="display:flex;gap:16px;flex-wrap:wrap;">
+    <!-- Left: Library -->
+    <div data-id="213" style="width:320px;flex-shrink:0;">
+      <div data-id="214" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 data-id="215" style="font-size:16px;font-weight:700;">Playlists</h3>
+        <button data-id="216" class="abtn abtn-amber abtn-sm" id="new-playlist-g5h6">＋ New</button>
+      </div>
+      <div data-id="217" id="playlist-library-i7j8" style="display:flex;flex-direction:column;gap:10px;">
+        <div data-id="218" id="pl-empty-state-k9l0" style="text-align:center;padding:40px 0;">
+          <i data-id="219" data-lucide="list-music" class="w-10 h-10" style="color:var(--muted);margin:0 auto 10px;display:block;"></i>
+          <p data-id="220" style="font-size:13px;color:var(--muted);">No playlists yet</p>
+        </div>
+      </div>
+    </div>
+    <!-- Right: Editor/Player -->
+    <div data-id="221" style="flex:1;min-width:320px;">
+      <div data-id="222" style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--border);">
+        <button data-id="223" class="nav-tab active" id="pl-tab-editor-m1n2" data-pltab="editor">Editor</button>
+        <button data-id="224" class="nav-tab" id="pl-tab-player-o3p4" data-pltab="player">Player</button>
+      </div>
+
+      <!-- Editor Tab -->
+      <div data-id="225" id="pl-editor-q5r6">
+        <div data-id="226" id="pl-no-edit-s7t8" style="text-align:center;padding:40px 0;">
+          <p data-id="227" style="font-size:13px;color:var(--muted);">Select or create a playlist to edit</p>
+        </div>
+        <div data-id="228" id="pl-edit-form-u9v0" style="display:none;">
+          <div data-id="229" class="acard" style="margin-bottom:12px;">
+            <h4 data-id="230" style="font-size:14px;font-weight:700;margin-bottom:10px;">Playlist Settings</h4>
+            <div data-id="231" style="display:grid;gap:8px;">
+              <div data-id="232"><label data-id="233" style="font-size:12px;color:var(--muted);">Name</label><input data-id="234" type="text" id="ple-name-w1x2" /></div>
+              <div data-id="235"><label data-id="236" style="font-size:12px;color:var(--muted);">Description</label><input data-id="237" type="text" id="ple-desc-y3z4" /></div>
+              <div data-id="238" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+                <div data-id="239"><label data-id="240" style="font-size:12px;color:var(--muted);">Repeat (0=∞)</label><input data-id="241" type="number" id="ple-repeat-a5b6" min="0" max="999" value="0" style="width:80px;" /></div>
+                <div data-id="242" style="display:flex;align-items:center;gap:6px;"><input data-id="243" type="checkbox" id="ple-shuffle-c7d8" style="width:auto;" /><label data-id="244" for="ple-shuffle-c7d8" style="font-size:12px;">Shuffle</label></div>
+                <div data-id="245"><label data-id="246" style="font-size:12px;color:var(--muted);">End Preset ID</label><input data-id="247" type="number" id="ple-endpreset-e9f0" min="0" max="250" value="0" style="width:80px;" /></div>
+              </div>
+              <div data-id="248">
+                <label data-id="249" style="font-size:12px;color:var(--muted);">Target Devices</label>
+                <div data-id="250" id="ple-targets-g1h2" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;"></div>
+              </div>
+              <button data-id="251" class="abtn abtn-amber abtn-sm" id="ple-save-settings-i3j4">Save Settings</button>
+            </div>
+          </div>
+          <!-- Steps -->
+          <div data-id="252" class="acard">
+            <div data-id="253" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <h4 data-id="254" style="font-size:14px;font-weight:700;">Steps</h4>
+              <button data-id="255" class="abtn abtn-amber abtn-sm" id="ple-add-step-k5l6">＋ Add Step</button>
+            </div>
+            <div data-id="256" id="ple-step-list-m7n8" style="display:flex;flex-direction:column;gap:4px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Player Tab -->
+      <div data-id="257" id="pl-player-o9p0" style="display:none;">
+        <div data-id="258" class="acard" style="margin-bottom:12px;">
+          <div data-id="259" style="display:flex;justify-content:center;gap:10px;margin-bottom:16px;">
+            <button data-id="260" class="transport-btn" id="tp-prev-q1r2" title="Previous">⏮</button>
+            <button data-id="261" class="transport-btn" id="tp-stop-s3t4" title="Stop">⏹</button>
+            <button data-id="262" class="transport-btn primary" id="tp-play-u5v6" title="Play/Pause">▶</button>
+            <button data-id="263" class="transport-btn" id="tp-next-w7x8" title="Next">⏭</button>
+            <button data-id="264" class="transport-btn" id="tp-shuffle-y9z0" title="Shuffle">🔀</button>
+            <button data-id="265" class="transport-btn" id="tp-loop-a1b2" title="Loop">🔁</button>
+          </div>
+          <div data-id="266" id="player-now-c3d4" style="text-align:center;margin-bottom:12px;">
+            <p data-id="267" style="font-size:16px;font-weight:700;" id="player-pl-name-e5f6">—</p>
+            <p data-id="268" style="font-size:13px;color:var(--muted);" id="player-step-info-g7h8">No playlist loaded</p>
+            <div data-id="269" style="background:var(--bg);border-radius:6px;height:6px;overflow:hidden;margin:10px 0;">
+              <div data-id="270" id="player-progress-i9j0" style="height:100%;width:0%;background:var(--amber);transition:width 0.1s;border-radius:6px;"></div>
+            </div>
+            <p data-id="271" style="font-size:12px;font-family:monospace;color:var(--amber);" id="player-countdown-k1l2">0.0s remaining</p>
+          </div>
+        </div>
+        <div data-id="272" class="acard" style="margin-bottom:12px;">
+          <h4 data-id="273" style="font-size:14px;font-weight:700;margin-bottom:8px;">Steps</h4>
+          <div data-id="274" id="player-step-list-m3n4" style="display:flex;flex-direction:column;gap:4px;"></div>
+        </div>
+        <div data-id="275" class="acard">
+          <h4 data-id="276" style="font-size:14px;font-weight:700;margin-bottom:8px;">Log</h4>
+          <div data-id="277" id="player-log-o5p6" class="log-area" style="max-height:160px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Step Type Modal -->
+<div data-id="278" id="step-modal-q7r8" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:none;align-items:center;justify-content:center;">
+  <div data-id="279" class="acard" style="max-width:400px;width:90%;margin:auto;">
+    <h4 data-id="280" style="font-size:15px;font-weight:700;margin-bottom:12px;">Add Step</h4>
+    <div data-id="281" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button data-id="282" class="acard" id="add-preset-step-s9t0" style="cursor:pointer;text-align:center;padding:20px;">
+        <span data-id="283" style="font-size:24px;">📺</span>
+        <p data-id="284" style="font-size:13px;font-weight:600;margin-top:6px;">Device Preset</p>
+      </button>
+      <button data-id="285" class="acard" id="add-effect-step-u1v2" style="cursor:pointer;text-align:center;padding:20px;">
+        <span data-id="286" style="font-size:24px;">✨</span>
+        <p data-id="287" style="font-size:13px;font-weight:600;margin-top:6px;">Effect Step</p>
+      </button>
+    </div>
+    <button data-id="288" class="abtn abtn-ghost abtn-sm" id="close-step-modal-w3x4" style="width:100%;margin-top:10px;">Cancel</button>
+  </div>
+</div>
+
+
+<!-- ====================== PAGE 6: SEGMENTS ====================== -->
+<div id="page-segments" class="page">
+  <h2 style="font-size:20px;font-weight:700;margin-bottom:16px;">Segment Designer</h2>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;">
+
+    <!-- Sidebar Layers -->
+    <div style="width:220px;flex-shrink:0;">
+      <div class="acard" style="min-height:300px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <h4 style="font-size:14px;font-weight:700;">Segments</h4>
+          <button class="abtn abtn-amber abtn-sm" id="seg-add-btn">＋ Add</button>
+        </div>
+        <div id="seg-layer-list" style="display:flex;flex-direction:column;gap:4px;">
+          <p style="font-size:12px;color:var(--muted);text-align:center;padding:20px 0;" id="seg-no-items">No segments yet</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas -->
+    <div style="flex:1;min-width:300px;">
+      <div class="acard" style="padding:8px;">
+        <div style="width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0 8px;">
+          <div id="seg-device-title" style="font-size:15px;font-weight:700;color:var(--amber);line-height:1.2;">M1</div>
+          <div id="seg-canvas-label" style="font-size:11px;color:var(--muted);margin-top:2px;">64×64</div>
+        </div>
+        <div id="seg-canvas" style="position:relative;width:100%;aspect-ratio:1;background:#0a0a0f;border:1px solid var(--border);border-radius:6px;overflow:hidden;cursor:crosshair;">
+          <div id="seg-coord-pill" style="position:absolute;top:6px;right:6px;z-index:20;background:rgba(0,0,0,0.8);color:var(--amber);font-family:monospace;font-size:11px;padding:3px 8px;border-radius:4px;pointer-events:none;">X: —  Y: —</div>
+        </div>
+        <p id="seg-status-bar" style="font-size:11px;font-family:monospace;color:var(--amber);margin-top:4px;text-align:center;">No segment selected — click a segment to select</p>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+        <button class="abtn abtn-amber" id="seg-apply-btn">Push Segments to Device</button>
+        <button class="abtn abtn-ghost" id="seg-fetch-btn">Fetch from Device</button>
+        <button class="abtn abtn-ghost" id="seg-reset-btn">Reset All</button>
+      </div>
+    </div>
+
+    <!-- Properties -->
+    <div style="width:260px;flex-shrink:0;">
+      <div class="acard" style="min-height:300px;" id="seg-props-panel">
+        <h4 style="font-size:14px;font-weight:700;margin-bottom:10px;">Segment Properties</h4>
+        <div id="seg-props-empty" style="text-align:center;padding:30px 0;">
+          <p style="font-size:13px;color:var(--muted);">No segment selected</p>
+        </div>
+        <div id="seg-props-form" style="display:none;">
+          <div style="margin-bottom:8px;">
+            <label style="font-size:12px;color:var(--muted);">Name</label>
+            <input type="text" id="sp-name" style="font-size:13px;" />
+          </div>
+          <div style="margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+            <label style="font-size:12px;color:var(--muted);">Color</label>
+            <input type="color" id="sp-color" value="#6366f1" />
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+            <div><label style="font-size:11px;color:var(--muted);">X Start</label><input type="number" id="sp-x1" min="0" style="font-size:12px;" /></div>
+            <div><label style="font-size:11px;color:var(--muted);">X Stop</label><input type="number" id="sp-x2" min="1" style="font-size:12px;" /></div>
+            <div><label style="font-size:11px;color:var(--muted);">Y Start</label><input type="number" id="sp-y1" min="0" style="font-size:12px;" /></div>
+            <div><label style="font-size:11px;color:var(--muted);">Y Stop</label><input type="number" id="sp-y2" min="1" style="font-size:12px;" /></div>
+          </div>
+          <hr style="border-color:var(--border);margin:10px 0;" />
+          <p style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">WLED Effect</p>
+          <div style="margin-bottom:6px;">
+            <label style="font-size:12px;color:var(--muted);">Effect (fx)</label>
+            <select id="sp-fx" style="font-size:13px;">
+              <option value="0">0 – Solid</option>
+              <option value="1">1 – Blink</option>
+              <option value="2">2 – Breathe</option>
+              <option value="3">3 – Wipe</option>
+              <option value="4">4 – Wipe Random</option>
+              <option value="5">5 – Random Colors</option>
+              <option value="6">6 – Sweep</option>
+              <option value="7">7 – Dynamic</option>
+              <option value="8">8 – Colorloop</option>
+              <option value="9">9 – Rainbow</option>
+              <option value="10">10 – Scan</option>
+              <option value="11">11 – Dual Scan</option>
+              <option value="12">12 – Fade</option>
+              <option value="13">13 – Chase</option>
+              <option value="14">14 – Chase Random</option>
+              <option value="16">16 – Chase Flash</option>
+              <option value="18">18 – Rainbow Runner</option>
+              <option value="24">24 – Stream</option>
+              <option value="25">25 – Scanner</option>
+              <option value="27">27 – Fireworks</option>
+              <option value="28">28 – Rain</option>
+              <option value="30">30 – Fire Flicker</option>
+              <option value="31">31 – Gradient</option>
+              <option value="41">41 – Fairy</option>
+              <option value="45">45 – Halloween</option>
+              <option value="49">49 – Lightning</option>
+              <option value="54">54 – Oscillate</option>
+              <option value="55">55 – Pride 2015</option>
+              <option value="56">56 – Juggle</option>
+              <option value="57">57 – Palette</option>
+              <option value="58">58 – Fire 2012</option>
+              <option value="59">59 – Colorwaves</option>
+              <option value="60">60 – BPM</option>
+              <option value="61">61 – Lake</option>
+              <option value="62">62 – Meteor</option>
+              <option value="63">63 – Meteor Smooth</option>
+              <option value="71">71 – Ripple</option>
+              <option value="72">72 – Twinklefox</option>
+              <option value="80">80 – Candle</option>
+              <option value="81">81 – Fireworks Starburst</option>
+              <option value="83">83 – Bouncing Balls</option>
+              <option value="84">84 – Sinelon</option>
+              <option value="87">87 – Popcorn</option>
+              <option value="88">88 – Drip</option>
+              <option value="89">89 – Plasma</option>
+              <option value="91">91 – Ripple Rainbow</option>
+              <option value="92">92 – Heartbeat</option>
+              <option value="93">93 – Pacifica</option>
+              <option value="94">94 – Candle Multi</option>
+              <option value="96">96 – Sunrise</option>
+              <option value="100">100 – Sine</option>
+              <option value="102">102 – Flow</option>
+              <option value="104">104 – Dancing Shadows</option>
+              <option value="105">105 – Washing Machine</option>
+            </select>
+          </div>
+          <div style="margin-bottom:6px;">
+            <label style="font-size:12px;color:var(--muted);">Palette (pal)</label>
+            <select id="sp-pal" style="font-size:13px;">
+              <option value="0">0 – Default</option>
+              <option value="1">1 – Random</option>
+              <option value="2">2 – Primary</option>
+              <option value="6">6 – Party</option>
+              <option value="7">7 – Cloud</option>
+              <option value="8">8 – Lava</option>
+              <option value="9">9 – Ocean</option>
+              <option value="10">10 – Forest</option>
+              <option value="11">11 – Rainbow</option>
+              <option value="35">35 – Fire</option>
+            </select>
+          </div>
+          <div style="margin-bottom:6px;">
+            <label style="font-size:12px;color:var(--muted);">Brightness <span id="sp-bri-val">200</span></label>
+            <input type="range" id="sp-bri" min="0" max="255" value="200" />
+          </div>
+          <div style="margin-bottom:6px;">
+            <label style="font-size:12px;color:var(--muted);">Speed <span id="sp-sx-val">128</span></label>
+            <input type="range" id="sp-sx" min="0" max="255" value="128" />
+          </div>
+          <div style="margin-bottom:6px;">
+            <label style="font-size:12px;color:var(--muted);">Intensity <span id="sp-ix-val">128</span></label>
+            <input type="range" id="sp-ix" min="0" max="255" value="128" />
+          </div>
+          <div style="margin-bottom:6px;">
+            <label style="font-size:12px;color:var(--muted);">Primary Color</label>
+            <input type="color" id="sp-col1" value="#ff0000" />
+          </div>
+          <div style="margin-bottom:6px;">
+            <label style="font-size:12px;color:var(--muted);">Secondary Color</label>
+            <input type="color" id="sp-col2" value="#00ff00" />
+          </div>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:var(--muted);">Tertiary Color</label>
+            <input type="color" id="sp-col3" value="#0000ff" />
+          </div>
+          <div style="margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" id="sp-on" style="width:auto;" checked />
+            <label for="sp-on" style="font-size:12px;">Segment On</label>
+          </div>
+          <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" id="sp-rev" style="width:auto;" />
+            <label for="sp-rev" style="font-size:12px;">Reverse</label>
+          </div>
+          <div style="margin-bottom:8px;">
+            <label style="font-size:12px;color:var(--muted);">Blend Mode (mi)</label>
+            <select id="sp-mi" style="font-size:13px;">
+              <option value="0">0 – Normal (default)</option>
+              <option value="1">1 – Add</option>
+              <option value="2">2 – Subtract</option>
+              <option value="3">3 – Multiply</option>
+              <option value="4">4 – Screen</option>
+              <option value="5">5 – Overlay</option>
+              <option value="6">6 – Dodge</option>
+              <option value="7">7 – Burn</option>
+              <option value="8">8 – Lighten</option>
+              <option value="9">9 – Darken</option>
+              <option value="10">10 – Difference</option>
+              <option value="11">11 – Exclusion</option>
+              <option value="12">12 – Hard Light</option>
+              <option value="13">13 – Soft Light</option>
+            </select>
+          </div>
+          <button class="abtn abtn-ghost abtn-sm" id="sp-json-btn" style="width:100%;margin-bottom:6px;">JSON Preview</button>
+          <pre id="sp-json-pre" style="display:none;font-size:11px;background:var(--bg);padding:8px;border-radius:6px;margin-bottom:8px;overflow:auto;max-height:140px;color:var(--amber);"></pre>
+          <button class="abtn abtn-danger abtn-sm" id="sp-delete-btn" style="width:100%;">Delete Segment</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer data-id="289" style="text-align:center;padding:20px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);margin-top:40px;">
+  Made by Copilot
+</footer>
+<script src="/js/app.js"></script>
+<script src="/js/dashboard.js"></script>
+<script src="/js/textdelay.js"></script>
+<script src="/js/overlay.js"></script>
+<script src="/js/devices.js"></script>
+<script src="/js/playlist.js"></script>
+<script src="/js/segments.js"></script>
+</body>
+</html>

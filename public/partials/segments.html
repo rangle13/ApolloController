@@ -1,0 +1,173 @@
+<!-- ====================== PAGE 6: SEGMENTS ====================== -->
+<div id="page-segments" class="page">
+  <div class="ov-toolbar">
+    <div class="ov-title">
+      <span id="seg-device-title">M1</span>
+      <span id="seg-canvas-label">64×64</span>
+    </div>
+    <div class="ov-actions">
+      <button class="abtn abtn-ghost abtn-sm" id="seg-toggle-layers" title="Show/hide segments list">Segments</button>
+      <button class="abtn abtn-ghost abtn-sm" id="seg-toggle-props" title="Show/hide properties">Properties</button>
+      <button class="abtn abtn-amber abtn-sm" id="seg-apply-btn">Push Segments to Device</button>
+      <button class="abtn abtn-ghost abtn-sm" id="seg-fetch-btn">Fetch from Device</button>
+      <button class="abtn abtn-ghost abtn-sm" id="seg-reset-btn">Reset All</button>
+    </div>
+  </div>
+  <div class="ov-layout">
+
+    <!-- Sidebar Layers -->
+    <div class="ov-side ov-layers">
+      <div class="acard" style="min-height:300px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <h4 style="font-size:14px;font-weight:700;">Segments</h4>
+          <div style="display:flex;gap:6px;">
+            <button class="abtn abtn-danger abtn-sm" id="seg-delete-all-btn" style="display:none;">Delete All</button>
+            <button class="abtn abtn-amber abtn-sm" id="seg-add-btn">＋ Add</button>
+          </div>
+        </div>
+        <div id="seg-layer-list" style="display:flex;flex-direction:column;gap:4px;">
+          <p style="font-size:12px;color:var(--muted);text-align:center;padding:20px 0;" id="seg-no-items">No segments yet</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas -->
+    <div class="ov-main">
+      <div class="ov-canvas-wrap">
+        <div id="seg-canvas" style="position:relative;background:#0a0a0f;border:1px solid var(--border);border-radius:6px;overflow:hidden;cursor:crosshair;">
+          <div id="seg-coord-pill" style="position:absolute;top:6px;right:6px;z-index:20;background:rgba(0,0,0,0.8);color:var(--amber);font-family:monospace;font-size:11px;padding:3px 8px;border-radius:4px;pointer-events:none;">X: — Y: —</div>
+        </div>
+      </div>
+      <p id="seg-status-bar" style="font-size:11px;font-family:monospace;color:var(--amber);margin-top:4px;text-align:center;">No segment selected — click a segment to select</p>
+    </div>
+
+    <!-- Properties -->
+    <div class="ov-side ov-props">
+      <div class="acard" style="min-height:300px;" id="seg-props-panel">
+        <h4 style="font-size:14px;font-weight:700;margin-bottom:10px;">Segment Properties</h4>
+        <div id="seg-props-empty" style="text-align:center;padding:30px 0;">
+          <p style="font-size:13px;color:var(--muted);">No segment selected</p>
+        </div>
+        <div id="seg-props-form" style="display:none;">
+          <div class="prow"><label>Name</label><input type="text" id="sp-name" /></div>
+          <div class="prow"><label>Color</label><input type="color" id="sp-color" value="#6366f1" /></div>
+          <div class="prow-2">
+            <div class="prow"><label>X Start</label><input type="number" id="sp-x1" min="0" /></div>
+            <div class="prow"><label>X Stop</label><input type="number" id="sp-x2" min="1" /></div>
+            <div class="prow"><label>Y Start</label><input type="number" id="sp-y1" min="0" /></div>
+            <div class="prow"><label>Y Stop</label><input type="number" id="sp-y2" min="1" /></div>
+          </div>
+          <hr style="border-color:var(--border);margin:6px 0;" />
+          <p style="font-size:10px;color:var(--muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">WLED Effect</p>
+          <div class="prow">
+            <label>Effect</label>
+            <select id="sp-fx">
+              <option value="0">0 – Solid</option>
+              <option value="1">1 – Blink</option>
+              <option value="2">2 – Breathe</option>
+              <option value="3">3 – Wipe</option>
+              <option value="4">4 – Wipe Random</option>
+              <option value="5">5 – Random Colors</option>
+              <option value="6">6 – Sweep</option>
+              <option value="7">7 – Dynamic</option>
+              <option value="8">8 – Colorloop</option>
+              <option value="9">9 – Rainbow</option>
+              <option value="10">10 – Scan</option>
+              <option value="11">11 – Dual Scan</option>
+              <option value="12">12 – Fade</option>
+              <option value="13">13 – Chase</option>
+              <option value="14">14 – Chase Random</option>
+              <option value="16">16 – Chase Flash</option>
+              <option value="18">18 – Rainbow Runner</option>
+              <option value="24">24 – Stream</option>
+              <option value="25">25 – Scanner</option>
+              <option value="27">27 – Fireworks</option>
+              <option value="28">28 – Rain</option>
+              <option value="30">30 – Fire Flicker</option>
+              <option value="31">31 – Gradient</option>
+              <option value="41">41 – Fairy</option>
+              <option value="45">45 – Halloween</option>
+              <option value="49">49 – Lightning</option>
+              <option value="54">54 – Oscillate</option>
+              <option value="55">55 – Pride 2015</option>
+              <option value="56">56 – Juggle</option>
+              <option value="57">57 – Palette</option>
+              <option value="58">58 – Fire 2012</option>
+              <option value="59">59 – Colorwaves</option>
+              <option value="60">60 – BPM</option>
+              <option value="61">61 – Lake</option>
+              <option value="62">62 – Meteor</option>
+              <option value="63">63 – Meteor Smooth</option>
+              <option value="71">71 – Ripple</option>
+              <option value="72">72 – Twinklefox</option>
+              <option value="80">80 – Candle</option>
+              <option value="81">81 – Fireworks Starburst</option>
+              <option value="83">83 – Bouncing Balls</option>
+              <option value="84">84 – Sinelon</option>
+              <option value="87">87 – Popcorn</option>
+              <option value="88">88 – Drip</option>
+              <option value="89">89 – Plasma</option>
+              <option value="91">91 – Ripple Rainbow</option>
+              <option value="92">92 – Heartbeat</option>
+              <option value="93">93 – Pacifica</option>
+              <option value="94">94 – Candle Multi</option>
+              <option value="96">96 – Sunrise</option>
+              <option value="100">100 – Sine</option>
+              <option value="102">102 – Flow</option>
+              <option value="104">104 – Dancing Shadows</option>
+              <option value="105">105 – Washing Machine</option>
+            </select>
+          </div>
+          <div class="prow">
+            <label>Palette</label>
+            <select id="sp-pal">
+              <option value="0">0 – Default</option>
+              <option value="1">1 – Random</option>
+              <option value="2">2 – Primary</option>
+              <option value="6">6 – Party</option>
+              <option value="7">7 – Cloud</option>
+              <option value="8">8 – Lava</option>
+              <option value="9">9 – Ocean</option>
+              <option value="10">10 – Forest</option>
+              <option value="11">11 – Rainbow</option>
+              <option value="35">35 – Fire</option>
+            </select>
+          </div>
+          <div class="prow"><label>Brightness</label><input type="range" id="sp-bri" min="0" max="255" value="200" /><span class="pval" id="sp-bri-val">200</span></div>
+          <div class="prow"><label>Speed</label><input type="range" id="sp-sx" min="0" max="255" value="128" /><span class="pval" id="sp-sx-val">128</span></div>
+          <div class="prow"><label>Intensity</label><input type="range" id="sp-ix" min="0" max="255" value="128" /><span class="pval" id="sp-ix-val">128</span></div>
+          <div class="prow-2">
+            <div class="prow"><label>Primary</label><input type="color" id="sp-col1" value="#ff0000" /></div>
+            <div class="prow"><label>Second.</label><input type="color" id="sp-col2" value="#00ff00" /></div>
+            <div class="prow"><label>Third</label><input type="color" id="sp-col3" value="#0000ff" /></div>
+          </div>
+          <div class="prow-2">
+            <div class="prow"><input type="checkbox" id="sp-on" style="width:auto;" checked /><label for="sp-on" style="flex:0 0 auto;">Segment On</label></div>
+            <div class="prow"><input type="checkbox" id="sp-rev" style="width:auto;" /><label for="sp-rev" style="flex:0 0 auto;">Reverse</label></div>
+          </div>
+          <div class="prow">
+            <label>Blend</label>
+            <select id="sp-mi">
+              <option value="0">0 – Normal (default)</option>
+              <option value="1">1 – Add</option>
+              <option value="2">2 – Subtract</option>
+              <option value="3">3 – Multiply</option>
+              <option value="4">4 – Screen</option>
+              <option value="5">5 – Overlay</option>
+              <option value="6">6 – Dodge</option>
+              <option value="7">7 – Burn</option>
+              <option value="8">8 – Lighten</option>
+              <option value="9">9 – Darken</option>
+              <option value="10">10 – Difference</option>
+              <option value="11">11 – Exclusion</option>
+              <option value="12">12 – Hard Light</option>
+              <option value="13">13 – Soft Light</option>
+            </select>
+          </div>
+          <button class="abtn abtn-ghost abtn-sm" id="sp-json-btn" style="width:100%;margin-bottom:6px;">JSON Preview</button>
+          <pre id="sp-json-pre" style="display:none;font-size:11px;background:var(--bg);padding:8px;border-radius:6px;margin-bottom:8px;overflow:auto;max-height:140px;color:var(--amber);"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

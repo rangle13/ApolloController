@@ -1,0 +1,54 @@
+<!-- ====================== PAGE 4: DEVICES ====================== -->
+<div data-id="174" id="page-devices" class="page">
+  <h2 data-id="175" style="font-size:20px;font-weight:700;margin-bottom:16px;">Device Manager</h2>
+  <div data-id="176" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;">
+    <!-- Matrices -->
+    <div data-id="177">
+      <div data-id="178" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 data-id="179" style="font-size:16px;font-weight:700;">LED Matrices</h3>
+        <button data-id="180" class="abtn abtn-amber abtn-sm" id="add-matrix-q3r4">＋ Add Matrix</button>
+      </div>
+      <div data-id="181" id="matrix-form-s5t6" class="acard" style="display:none;margin-bottom:12px;">
+        <div data-id="182" style="display:grid;gap:8px;">
+          <input data-id="183" type="text" id="mf-name-u7v8" placeholder="Name *" />
+          <input data-id="184" type="text" id="mf-ip-w9x0" placeholder="IP Address *" />
+          <div data-id="185" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <input data-id="186" type="number" id="mf-w-y1z2" value="64" min="1" placeholder="Width" />
+            <input data-id="187" type="number" id="mf-h-a3b4" value="64" min="1" placeholder="Height" />
+          </div>
+          <textarea data-id="188" id="mf-notes-c5d6" placeholder="Notes (optional)" rows="2" style="resize:vertical;"></textarea>
+          <div data-id="189" style="display:flex;gap:8px;">
+            <button data-id="190" class="abtn abtn-amber abtn-sm" id="mf-save-e7f8">Save</button>
+            <button data-id="191" class="abtn abtn-ghost abtn-sm" id="mf-cancel-g9h0">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div data-id="192" id="matrix-list-i1j2" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+    <!-- Strings -->
+    <div data-id="193">
+      <div data-id="194" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 data-id="195" style="font-size:16px;font-weight:700;">LED Strings</h3>
+        <button data-id="196" class="abtn abtn-indigo abtn-sm" id="add-string-k3l4">＋ Add String</button>
+      </div>
+      <div data-id="197" id="string-form-m5n6" class="acard" style="display:none;margin-bottom:12px;">
+        <div data-id="198" style="display:grid;gap:8px;">
+          <input data-id="199" type="text" id="sf-name-o7p8" placeholder="Name *" />
+          <input data-id="200" type="text" id="sf-ip-q9r0" placeholder="IP Address *" />
+          <input data-id="201" type="number" id="sf-len-s1t2" value="300" min="1" placeholder="Length" />
+          <textarea data-id="202" id="sf-notes-u3v4" placeholder="Notes (optional)" rows="2" style="resize:vertical;"></textarea>
+          <div data-id="203" style="display:flex;gap:8px;">
+            <button data-id="204" class="abtn abtn-indigo abtn-sm" id="sf-save-w5x6">Save</button>
+            <button data-id="205" class="abtn abtn-ghost abtn-sm" id="sf-cancel-y7z8">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div data-id="206" id="string-list-a9b0" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+  </div>
+  <!-- Active Device Summary -->
+  <div data-id="207" class="acard" style="margin-top:16px;" id="active-device-summary-c1d2">
+    <h4 data-id="208" style="font-size:14px;font-weight:700;margin-bottom:6px;">Active Device</h4>
+    <p data-id="209" id="active-dev-info-e3f4" style="font-size:13px;color:var(--muted);">No active device set</p>
+  </div>
+</div>
