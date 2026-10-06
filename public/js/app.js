@@ -7,6 +7,16 @@ window.APP = {
   matrixH: 64
 };
 
+// Sets the active device IP and refreshes anything that depends on it
+// (the dashboard's "ready to play" playlist label, and the Playlist Manager's
+// per-device filter), so playlists associated with a device show up as soon
+// as that device's IP becomes active.
+function setActiveIp(ip) {
+  window.APP.ip = ip;
+  if (typeof updateDashPlaylist === 'function') updateDashPlaylist();
+  if (window.APP.activePage === 'playlist' && typeof renderPlaylists === 'function') renderPlaylists();
+}
+
 // === TOAST ===
 function showToast(msg, type = 'info', duration = 2500) {
   const colors = {
@@ -436,13 +446,19 @@ populateSelect('overlay-preset-sel-y5z6', OVERLAY_PRESETS);
 function updatePresetDesc() {
   const sel = document.getElementById('preset-sel-s9t0');
   const desc = document.getElementById('preset-desc-u1v2');
-  if (sel && desc && PRESETS[sel.value]) desc.textContent = PRESETS[sel.value].desc;
+  if (sel && PRESETS[sel.value]) {
+    if (desc) desc.textContent = PRESETS[sel.value].desc;
+    sel.title = PRESETS[sel.value].desc;
+  }
 }
 
 function updateOverlayPresetDesc() {
   const sel = document.getElementById('overlay-preset-sel-y5z6');
   const desc = document.getElementById('overlay-preset-desc-a7b8');
-  if (sel && desc && OVERLAY_PRESETS[sel.value]) desc.textContent = OVERLAY_PRESETS[sel.value].desc;
+  if (sel && OVERLAY_PRESETS[sel.value]) {
+    if (desc) desc.textContent = OVERLAY_PRESETS[sel.value].desc;
+    sel.title = OVERLAY_PRESETS[sel.value].desc;
+  }
 }
 document.getElementById('preset-sel-s9t0').addEventListener('change', updatePresetDesc);
 document.getElementById('overlay-preset-sel-y5z6').addEventListener('change', updateOverlayPresetDesc);

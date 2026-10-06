@@ -100,7 +100,7 @@ function renderDevices() {
     const d2 = loadDevices();
     d2.activeId = btn.dataset.id; d2.activeType = btn.dataset.type;
     saveDevices(d2);
-    window.APP.ip = btn.dataset.ip;
+    setActiveIp(btn.dataset.ip);
     window.APP.matrixW = parseInt(btn.dataset.w)||64;
     window.APP.matrixH = parseInt(btn.dataset.h)||64;
     document.getElementById('ip-input-d1a2').value = btn.dataset.ip;
@@ -116,7 +116,7 @@ function renderDevices() {
     const w = active.width||1, h = active.height||active.n||0;
     summary.innerHTML = active.type+' · <strong>'+active.name+'</strong> · '+active.ip+' · '+w+'×'+h+' · <button class="abtn abtn-ghost abtn-sm" id="summary-go-dash" style="display:inline;">→ Dashboard</button>';
     const goBtn = document.getElementById('summary-go-dash');
-    if (goBtn) goBtn.addEventListener('click', () => { window.APP.ip = active.ip; document.getElementById('ip-input-d1a2').value = active.ip; showPage('dashboard'); });
+    if (goBtn) goBtn.addEventListener('click', () => { setActiveIp(active.ip); document.getElementById('ip-input-d1a2').value = active.ip; showPage('dashboard'); });
   } else {
     summary.textContent = 'No active device set';
   }

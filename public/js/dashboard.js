@@ -4,7 +4,7 @@ document.getElementById('connect-btn-c3d4').addEventListener('click', () => {
     showToast('Enter an IP address', 'warn');
     return;
   }
-  window.APP.ip = ip;
+  setActiveIp(ip);
   window.APP.connected = true;
   const dot = document.querySelector('#conn-status-e5f6 .status-dot');
   dot.style.background = 'var(--success)';
@@ -40,26 +40,60 @@ document.getElementById('alloff-btn-q7r8').addEventListener('click', () => {
   document.getElementById('bri-val-o5p6').textContent = '0';
 });
 
+// Apply indicators: green = selection not yet applied, gray = already applied
+let appliedPresetKey = null;
+let appliedOverlayKey = null;
+
+function refreshPresetApplyState() {
+  const sel = document.getElementById('preset-sel-s9t0');
+  const btn = document.getElementById('apply-preset-w3x4');
+  const isApplied = sel.value === appliedPresetKey;
+  btn.classList.toggle('applied', isApplied);
+  btn.classList.toggle('pending', !isApplied);
+}
+
+function refreshOverlayApplyState() {
+  const sel = document.getElementById('overlay-preset-sel-y5z6');
+  const btn = document.getElementById('apply-overlay-preset-c9d0');
+  const isApplied = sel.value === appliedOverlayKey;
+  btn.classList.toggle('applied', isApplied);
+  btn.classList.toggle('pending', !isApplied);
+}
+
+document.getElementById('preset-sel-s9t0').addEventListener('change', refreshPresetApplyState);
+document.getElementById('overlay-preset-sel-y5z6').addEventListener('change', refreshOverlayApplyState);
+
 // Apply Preset
 document.getElementById('apply-preset-w3x4').addEventListener('click', () => {
   const sel = document.getElementById('preset-sel-s9t0');
-  if (PRESETS[sel.value]) wledPost(PRESETS[sel.value].payload);
+  if (PRESETS[sel.value]) {
+    wledPost(PRESETS[sel.value].payload);
+    appliedPresetKey = sel.value;
+    refreshPresetApplyState();
+  }
 });
 
 // Apply Overlay Preset
 document.getElementById('apply-overlay-preset-c9d0').addEventListener('click', () => {
   const sel = document.getElementById('overlay-preset-sel-y5z6');
-  if (OVERLAY_PRESETS[sel.value]) wledPost(OVERLAY_PRESETS[sel.value].payload);
+  if (OVERLAY_PRESETS[sel.value]) {
+    wledPost(OVERLAY_PRESETS[sel.value].payload);
+    appliedOverlayKey = sel.value;
+    refreshOverlayApplyState();
+  }
 });
+
+refreshPresetApplyState();
+refreshOverlayApplyState();
 
 // Dashboard playlist controls
 document.getElementById('dash-pl-play-g3h4').addEventListener('click', () => {
-  const pls = loadPlaylists();
-  if (pls.length) {
-    ENGINE.play(pls[0]);
-    showToast('Playing: ' + pls[0].name, 'success');
+  const candidates = (typeof getPlaylistsForIp === 'function') ? getPlaylistsForIp(window.APP.ip) : loadPlaylists();
+  if (candidates.length) {
+    ENGINE.play(candidates[0]);
+    showToast('Playing: ' + candidates[0].name, 'success');
     updateDashPlaylist();
-  } else showToast('No playlists available', 'warn');
+  } else showToast('No playlists available for this device', 'warn');
 });
 document.getElementById('dash-pl-stop-i5j6').addEventListener('click', () => {
   ENGINE.stop();
@@ -72,7 +106,8 @@ function updateDashPlaylist() {
   if (ENGINE.running && ENGINE.playlist) {
     el.textContent = 'Playing: ' + ENGINE.playlist.name + ' — Step ' + (ENGINE.stepIdx + 1);
   } else {
-    el.textContent = 'No playlist playing';
+    const candidates = (typeof getPlaylistsForIp === 'function') ? getPlaylistsForIp(window.APP.ip) : [];
+    el.textContent = candidates.length ? 'Ready: ' + candidates[0].name : 'No playlist playing';
   }
 }
 
@@ -92,7 +127,7 @@ function populateDeviceDropdown() {
 document.getElementById('saved-device-dd-x1b3').addEventListener('change', function () {
   if (this.value) {
     document.getElementById('ip-input-d1a2').value = this.value;
-    window.APP.ip = this.value;
+    setActiveIp(this.value);
   }
 });
 

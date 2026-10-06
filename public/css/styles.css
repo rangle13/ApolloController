@@ -98,6 +98,33 @@ input[type="color"] { width: 40px; height: 32px; border: 1px solid var(--border)
 .layer-row > span:nth-child(2) { flex: 1 1 0; min-width: 0; max-width: none !important; }
 #page-segments .ov-layers, #page-overlay .ov-layers { width: 230px; }
 
+/* Dashboard: single-line compact cards */
+.dash-compact .acard { padding: 10px 14px; margin-bottom: 8px; }
+.dash-label { font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; flex: 0 0 auto; }
+.dash-line-label { color: var(--txt); font-weight: 700; min-width: 86px; }
+.dash-desc-hidden { display: none; }
+.dash-line {
+  display: flex; flex-wrap: nowrap; align-items: center; gap: 10px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.dash-line::-webkit-scrollbar { display: none; }
+.dash-ip { flex: 1 1 180px; min-width: 120px; width: auto; }
+.dash-select-compact { flex: 0 1 150px; width: auto; min-width: 90px; font-size: 13px; padding: 6px 10px; }
+.dash-bri-slider { flex: 1 1 100px; min-width: 70px; max-width: 260px; }
+.dash-bri-val { font-size: 12px; font-weight: 600; min-width: 26px; text-align: right; flex: 0 0 auto; }
+.dash-playlist-status { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1 1 auto; min-width: 60px; }
+.dash-push-end { margin-left: auto; }
+
+/* Preset apply indicator: green = pending apply, gray = already applied */
+.preset-apply {
+  flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; border: none;
+  cursor: pointer; font-size: 13px; font-weight: 700; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.preset-apply.pending { background: var(--success); color: #052e14; }
+.preset-apply.applied { background: #334155; color: #64748b; }
+
 /* Device log */
 #devlog-list { max-height: calc(100vh - 130px); height: calc(100vh - 130px); font-size: 12px; }
 .devlog-entry { border-bottom: 1px solid var(--border); padding: 2px 0; }

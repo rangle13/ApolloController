@@ -1,67 +1,53 @@
 <!-- ====================== PAGE 1: DASHBOARD ====================== -->
-<div data-id="13" id="page-dashboard" class="page active">
+<div data-id="13" id="page-dashboard" class="page active dash-compact">
 
-  <!-- Connection Card -->
-  <div data-id="14" class="acard" style="margin-bottom:16px;">
-    <div data-id="15" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
-      <label data-id="16" style="font-size:13px;font-weight:600;white-space:nowrap;">Apollo M-1 Device IP:</label>
-      <input data-id="17" type="text" id="ip-input-d1a2" placeholder="e.g. 192.168.1.45" style="flex:1;min-width:160px;" />
-      <select data-id="18" id="saved-device-dd-x1b3" style="width:auto;min-width:140px;">
-        <option data-id="19" value="">Or use saved device…</option>
-      </select>
-      <button data-id="20" class="abtn abtn-amber" id="connect-btn-c3d4">Connect</button>
-    </div>
-    <div data-id="21" style="margin-top:10px;">
-      <span data-id="22" class="status-pill" id="conn-status-e5f6">
-        <span data-id="23" class="status-dot" style="background:var(--muted);"></span>
-        <span data-id="24" id="conn-label-g7h8">Disconnected</span>
-      </span>
-    </div>
+  <!-- Connection -->
+  <div data-id="14" class="acard dash-line">
+    <input data-id="17" type="text" id="ip-input-d1a2" class="dash-ip" placeholder="Device IP e.g. 192.168.1.45" />
+    <select data-id="18" id="saved-device-dd-x1b3" class="dash-select-compact">
+      <option data-id="19" value="">Saved device…</option>
+    </select>
+    <button data-id="20" class="abtn abtn-amber abtn-sm" id="connect-btn-c3d4">Connect</button>
+    <span data-id="22" class="status-pill" id="conn-status-e5f6">
+      <span data-id="23" class="status-dot" style="background:var(--muted);"></span>
+      <span data-id="24" id="conn-label-g7h8">Disconnected</span>
+    </span>
   </div>
 
   <!-- Master Controls -->
-  <div data-id="25" class="acard" style="margin-bottom:16px;">
-    <h3 data-id="26" style="font-size:15px;font-weight:700;margin-bottom:12px;">Master Controls</h3>
-    <div data-id="27" style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;">
-      <div data-id="28" style="display:flex;align-items:center;gap:10px;">
-        <span data-id="29" style="font-size:13px;color:var(--muted);">OFF</span>
-        <input data-id="30" type="checkbox" id="power-toggle-i9j0" class="toggle-input" />
-        <label data-id="31" for="power-toggle-i9j0" class="toggle-track" id="power-label-k1l2"></label>
-        <span data-id="32" style="font-size:13px;color:var(--muted);">ON</span>
-      </div>
-      <div data-id="33" style="display:flex;align-items:center;gap:10px;flex:1;min-width:180px;max-width:400px;">
-        <label data-id="34" style="font-size:13px;font-weight:600;white-space:nowrap;">Brightness</label>
-        <input data-id="35" type="range" id="bri-slider-m3n4" min="0" max="255" value="200" />
-        <span data-id="36" id="bri-val-o5p6" style="font-size:13px;font-weight:600;min-width:28px;text-align:right;">200</span>
-      </div>
-      <button data-id="37" class="abtn abtn-danger" id="alloff-btn-q7r8">All Off</button>
-    </div>
+  <div data-id="25" class="acard dash-line">
+    <span data-id="29" class="dash-label">Off</span>
+    <input data-id="30" type="checkbox" id="power-toggle-i9j0" class="toggle-input" />
+    <label data-id="31" for="power-toggle-i9j0" class="toggle-track" id="power-label-k1l2"></label>
+    <span data-id="32" class="dash-label">On</span>
+    <label data-id="34" class="dash-label">Brightness</label>
+    <input data-id="35" type="range" id="bri-slider-m3n4" class="dash-bri-slider" min="0" max="255" value="200" />
+    <span data-id="36" id="bri-val-o5p6" class="dash-bri-val">200</span>
+    <button data-id="37" class="abtn abtn-danger abtn-sm dash-push-end" id="alloff-btn-q7r8">All Off</button>
   </div>
 
-  <!-- Quick Presets -->
-  <div data-id="38" class="acard" style="margin-bottom:16px;">
-    <h3 data-id="39" style="font-size:15px;font-weight:700;margin-bottom:12px;">Quick Presets</h3>
-    <select data-id="40" id="preset-sel-s9t0" style="margin-bottom:8px;"></select>
-    <p data-id="41" id="preset-desc-u1v2" style="font-size:13px;color:var(--muted);margin-bottom:12px;min-height:20px;"></p>
-    <button data-id="42" class="abtn abtn-amber" id="apply-preset-w3x4">Apply Preset</button>
+  <!-- Quick Preset -->
+  <div data-id="38" class="acard dash-line">
+    <span data-id="39" class="dash-label dash-line-label">Quick Preset</span>
+    <select data-id="40" id="preset-sel-s9t0" class="dash-select-compact"></select>
+    <p data-id="41" id="preset-desc-u1v2" class="dash-desc-hidden"></p>
+    <button data-id="42" class="preset-apply" id="apply-preset-w3x4" title="Apply preset">✓</button>
   </div>
 
-  <!-- Overlay Presets -->
-  <div data-id="43" class="acard" style="margin-bottom:16px;">
-    <h3 data-id="44" style="font-size:15px;font-weight:700;margin-bottom:12px;">Overlay Presets</h3>
-    <select data-id="45" id="overlay-preset-sel-y5z6" style="margin-bottom:8px;"></select>
-    <p data-id="46" id="overlay-preset-desc-a7b8" style="font-size:13px;color:var(--muted);margin-bottom:12px;min-height:20px;"></p>
-    <button data-id="47" class="abtn abtn-amber" id="apply-overlay-preset-c9d0">Apply Overlay</button>
+  <!-- Overlay Preset -->
+  <div data-id="43" class="acard dash-line">
+    <span data-id="44" class="dash-label dash-line-label">Overlay Preset</span>
+    <select data-id="45" id="overlay-preset-sel-y5z6" class="dash-select-compact"></select>
+    <p data-id="46" id="overlay-preset-desc-a7b8" class="dash-desc-hidden"></p>
+    <button data-id="47" class="preset-apply" id="apply-overlay-preset-c9d0" title="Apply overlay preset">✓</button>
   </div>
 
   <!-- Active Playlist -->
-  <div data-id="48" class="acard" style="margin-bottom:16px;">
-    <h3 data-id="49" style="font-size:15px;font-weight:700;margin-bottom:10px;">Active Playlist</h3>
-    <p data-id="50" id="active-pl-label-e1f2" style="font-size:13px;color:var(--muted);margin-bottom:10px;">No playlist playing</p>
-    <div data-id="51" style="display:flex;gap:8px;align-items:center;">
-      <button data-id="52" class="abtn abtn-amber abtn-sm" id="dash-pl-play-g3h4">▶ Play</button>
-      <button data-id="53" class="abtn abtn-danger abtn-sm" id="dash-pl-stop-i5j6">⏹ Stop</button>
-      <button data-id="54" class="abtn abtn-ghost abtn-sm" id="dash-pl-manage-k7l8" style="margin-left:auto;">Manage →</button>
-    </div>
+  <div data-id="48" class="acard dash-line">
+    <span data-id="49" class="dash-label dash-line-label">Playlist</span>
+    <span data-id="50" id="active-pl-label-e1f2" class="dash-playlist-status">No playlist playing</span>
+    <button data-id="52" class="abtn abtn-amber abtn-sm" id="dash-pl-play-g3h4">▶ Play</button>
+    <button data-id="53" class="abtn abtn-danger abtn-sm" id="dash-pl-stop-i5j6">⏹ Stop</button>
+    <button data-id="54" class="abtn abtn-ghost abtn-sm dash-push-end" id="dash-pl-manage-k7l8">Manage →</button>
   </div>
 </div>

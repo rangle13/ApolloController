@@ -634,7 +634,7 @@ function initApp() {
     const all = [...d.matrices, ...d.strings];
     const active = all.find(x => x.id === d.activeId);
     if (active) {
-      window.APP.ip = active.ip;
+      setActiveIp(active.ip);
       window.APP.matrixW = active.width || 1;
       window.APP.matrixH = active.height || active.n || 64;
       document.getElementById('ip-input-d1a2').value = active.ip;

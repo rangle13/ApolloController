@@ -11,6 +11,8 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=${PORT:-3000}
+    volumes:
+      - ./data:/app/data
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:$${PORT}/health"]
       interval: 30s

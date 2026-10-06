@@ -16,6 +16,7 @@ COPY public/      ./public/
 
 # Non-root user for security
 RUN addgroup -S apollo && adduser -S apollo -G apollo
+RUN mkdir -p /app/data && chown -R apollo:apollo /app/data
 USER apollo
 
 ENV NODE_ENV=production PORT=3000

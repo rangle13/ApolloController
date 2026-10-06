@@ -21,16 +21,78 @@ const DEFAULT_PLAYLISTS = [
   }
 ];
 
+// Playlists are kept in an in-memory cache so the rest of this file can keep
+// reading/writing them synchronously. The cache is populated from the server
+// (GET /api/playlists) on startup and every write is pushed back to the
+// server (PUT /api/playlists) in the background, so playlists persist
+// across browsers/devices instead of only living in localStorage.
+let _playlistsCache = null;
+
 function loadPlaylists() {
+  if (_playlistsCache) return _playlistsCache;
   const raw = localStorage.getItem('apollo_playlists');
-  if (raw) try { const p = JSON.parse(raw); if (p.length) return p; } catch(e){}
-  savePlaylists(DEFAULT_PLAYLISTS);
-  return JSON.parse(JSON.stringify(DEFAULT_PLAYLISTS));
+  if (raw) try { const p = JSON.parse(raw); if (p.length) { _playlistsCache = p; return p; } } catch(e){}
+  _playlistsCache = JSON.parse(JSON.stringify(DEFAULT_PLAYLISTS));
+  return _playlistsCache;
 }
-function savePlaylists(p) { localStorage.setItem('apollo_playlists', JSON.stringify(p)); }
+
+function savePlaylists(p) {
+  _playlistsCache = p;
+  localStorage.setItem('apollo_playlists', JSON.stringify(p)); // offline fallback
+  fetch('/api/playlists', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(p)
+  }).catch(err => {
+    console.error('Failed to save playlists to server:', err);
+    if (typeof showToast === 'function') showToast('Could not save playlists to server (saved locally only)', 'warn');
+  });
+}
+
+// Pull the authoritative copy from the server once at startup. If the
+// server already has playlists, they win. If the server has none yet but
+// this browser has some in localStorage, migrate them up to the server.
+(async function initPlaylistsFromServer() {
+  try {
+    const res = await fetch('/api/playlists');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const server = await res.json();
+    if (Array.isArray(server) && server.length) {
+      _playlistsCache = server;
+      localStorage.setItem('apollo_playlists', JSON.stringify(server));
+    } else {
+      const seeded = loadPlaylists(); // local data or defaults
+      savePlaylists(seeded);
+    }
+  } catch (e) {
+    console.error('Failed to load playlists from server, using local copy:', e);
+  }
+  if (window.APP && window.APP.activePage === 'playlist') { renderPlaylists(); renderPlaylistEditor(); }
+  if (typeof updateDashPlaylist === 'function') updateDashPlaylist();
+})();
 
 let editingPlaylistId = null;
 let plEditorTab = 'editor';
+
+// Playlists can be scoped to specific saved devices via their `targets`
+// array (device ids, or 'all' for every device). These helpers resolve
+// which saved device (if any) matches the currently active IP, and filter
+// playlists down to the ones relevant to that device.
+function getActiveDeviceForIp(ip) {
+  if (!ip) return null;
+  const d = loadDevices();
+  const all = [...d.matrices, ...d.strings];
+  return all.find(dev => dev.ip === ip) || null;
+}
+
+function getPlaylistsForIp(ip) {
+  const pls = loadPlaylists();
+  const dev = getActiveDeviceForIp(ip);
+  return pls.filter(pl => pl.targets.includes('all') || (dev && pl.targets.includes(dev.id)));
+}
+
+// true = show only playlists targeting the currently connected device (+ "all"); false = show every playlist
+let plFilterByDevice = true;
 
 // Playlist tabs
 document.getElementById('pl-tab-editor-m1n2').addEventListener('click', () => {
@@ -49,13 +111,45 @@ document.getElementById('pl-tab-player-o3p4').addEventListener('click', () => {
   renderPlayerSteps();
 });
 
+document.getElementById('pl-filter-toggle-r7s8').addEventListener('click', () => {
+  plFilterByDevice = !plFilterByDevice;
+  renderPlaylists();
+});
+
 function renderPlaylists() {
-  const pls = loadPlaylists();
+  const allPls = loadPlaylists();
   const lib = document.getElementById('playlist-library-i7j8');
   const empty = document.getElementById('pl-empty-state-k9l0');
+  const filterLabel = document.getElementById('pl-filter-label-p5q6');
+  const filterToggle = document.getElementById('pl-filter-toggle-r7s8');
+
+  const ip = window.APP && window.APP.ip;
+  const activeDevice = getActiveDeviceForIp(ip);
+  const pls = plFilterByDevice
+    ? allPls.filter(pl => pl.targets.includes('all') || (activeDevice && pl.targets.includes(activeDevice.id)))
+    : allPls;
+
+  if (filterToggle) filterToggle.textContent = plFilterByDevice ? 'Show all playlists' : 'Filter by device';
+  if (filterLabel) {
+    if (!plFilterByDevice) {
+      filterLabel.textContent = 'Showing: all playlists (' + allPls.length + ')';
+    } else if (activeDevice) {
+      filterLabel.textContent = 'Showing: playlists for ' + activeDevice.name + ' (' + activeDevice.ip + ')';
+    } else if (ip) {
+      filterLabel.textContent = 'Showing: "all devices" playlists (' + ip + ' is not a saved device)';
+    } else {
+      filterLabel.textContent = 'Showing: "all devices" playlists (not connected)';
+    }
+  }
 
   lib.innerHTML = '';
   if (pls.length === 0) {
+    const emptyMsg = empty.querySelector('p');
+    if (emptyMsg) {
+      emptyMsg.textContent = (plFilterByDevice && allPls.length)
+        ? 'No playlists assigned to this device yet'
+        : 'No playlists yet';
+    }
     lib.appendChild(empty); empty.style.display = 'block'; return;
   }
 
