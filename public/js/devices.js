@@ -20,19 +20,55 @@ function saveDevices(d) { localStorage.setItem('apollo_devices', JSON.stringify(
 
 let editingDeviceId = null;
 
+$(document).on('click', '.dev-ping', async function () {
+  const button = $(this);
+  const ip = button.data('ip');
+  const pill = button.closest('.acard').find('.status-pill');
+  try {
+    await deviceFetch('http://' + ip + '/json/info');
+    pill.html('<span class="status-dot" style="background:var(--success);"></span>Online');
+  } catch (e) {
+    pill.html('<span class="status-dot" style="background:var(--danger);"></span>Offline (CORS)');
+  }
+});
+
+$(document).on('click', '.dev-del', function () {
+  const button = $(this);
+  if (!confirm('Delete this device?')) return;
+  const d = loadDevices();
+  if (button.data('type') === 'matrix') d.matrices = d.matrices.filter(m => m.id !== button.data('id'));
+  else d.strings = d.strings.filter(s => s.id !== button.data('id'));
+  if (d.activeId === button.data('id')) { d.activeId = null; d.activeType = null; }
+  saveDevices(d);
+  renderDevices();
+});
+
+$(document).on('click', '.dev-active', function () {
+  const button = $(this);
+  const d = loadDevices();
+  const ip = button.data('ip');
+  d.activeId = button.data('id');
+  d.activeType = button.data('type');
+  saveDevices(d);
+  setActiveIp(ip);
+  window.APP.matrixW = parseInt(button.attr('data-w')) || 64;
+  window.APP.matrixH = parseInt(button.attr('data-h')) || 64;
+  $('#ip-input-d1a2').val(ip);
+  renderDevices();
+  populateDeviceDropdown();
+  showToast('Active device set: ' + ip, 'success');
+});
+
 function renderDevices() {
   const d = loadDevices();
   // Matrices
-  const ml = document.getElementById('matrix-list-i1j2');
-  ml.innerHTML = '';
+  const ml = $('#matrix-list-i1j2').empty();
   d.matrices.forEach(m => {
     const leds = m.width * m.height;
     const isActive = d.activeId === m.id && d.activeType === 'matrix';
-    const card = document.createElement('div');
-    card.className = 'acard';
-    card.style.borderLeft = '3px solid var(--amber)';
-    if (isActive) { card.style.outline = '2px solid var(--amber)'; card.style.outlineOffset = '2px'; }
-    card.innerHTML = `
+    const card = $('<div>').addClass('acard').css('border-left', '3px solid var(--amber)');
+    if (isActive) card.css({ outline: '2px solid var(--amber)', outlineOffset: '2px' });
+    card.html(`
       <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:6px;">
         <div>
           <p style="font-weight:700;font-size:14px;">${m.name}</p>
@@ -45,20 +81,17 @@ function renderDevices() {
         <button class="abtn abtn-ghost abtn-sm dev-del" data-id="${m.id}" data-type="matrix">🗑 Delete</button>
         <button class="abtn abtn-amber abtn-sm dev-active" data-id="${m.id}" data-type="matrix" data-w="${m.width}" data-h="${m.height}" data-ip="${m.ip}">${isActive?'✓ Active':'Set Active'}</button>
       </div>
-    `;
-    ml.appendChild(card);
+    `);
+    ml.append(card);
   });
 
   // Strings
-  const sl = document.getElementById('string-list-a9b0');
-  sl.innerHTML = '';
+  const sl = $('#string-list-a9b0').empty();
   d.strings.forEach(s => {
     const isActive = d.activeId === s.id && d.activeType === 'string';
-    const card = document.createElement('div');
-    card.className = 'acard';
-    card.style.borderLeft = '3px solid var(--indigo)';
-    if (isActive) { card.style.outline = '2px solid var(--amber)'; card.style.outlineOffset = '2px'; }
-    card.innerHTML = `
+    const card = $('<div>').addClass('acard').css('border-left', '3px solid var(--indigo)');
+    if (isActive) card.css({ outline: '2px solid var(--amber)', outlineOffset: '2px' });
+    card.html(`
       <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:6px;">
         <div>
           <p style="font-weight:700;font-size:14px;">${s.name}</p>
@@ -71,92 +104,58 @@ function renderDevices() {
         <button class="abtn abtn-ghost abtn-sm dev-del" data-id="${s.id}" data-type="string">🗑 Delete</button>
         <button class="abtn abtn-indigo abtn-sm dev-active" data-id="${s.id}" data-type="string" data-ip="${s.ip}" data-w="1" data-h="${s.n}">${isActive?'✓ Active':'Set Active'}</button>
       </div>
-    `;
-    sl.appendChild(card);
+    `);
+    sl.append(card);
   });
 
-  // Bind events
-  document.querySelectorAll('.dev-ping').forEach(btn => btn.addEventListener('click', async () => {
-    const ip = btn.dataset.ip;
-    const pill = btn.closest('.acard').querySelector('.status-pill');
-    try {
-      await deviceFetch('http://'+ip+'/json/info');
-      pill.innerHTML = '<span class="status-dot" style="background:var(--success);"></span>Online';
-    } catch(e) {
-      pill.innerHTML = '<span class="status-dot" style="background:var(--danger);"></span>Offline (CORS)';
-    }
-  }));
-
-  document.querySelectorAll('.dev-del').forEach(btn => btn.addEventListener('click', () => {
-    if (!confirm('Delete this device?')) return;
-    const d2 = loadDevices();
-    if (btn.dataset.type==='matrix') d2.matrices = d2.matrices.filter(m=>m.id!==btn.dataset.id);
-    else d2.strings = d2.strings.filter(s=>s.id!==btn.dataset.id);
-    if (d2.activeId === btn.dataset.id) { d2.activeId=null; d2.activeType=null; }
-    saveDevices(d2); renderDevices();
-  }));
-
-  document.querySelectorAll('.dev-active').forEach(btn => btn.addEventListener('click', () => {
-    const d2 = loadDevices();
-    d2.activeId = btn.dataset.id; d2.activeType = btn.dataset.type;
-    saveDevices(d2);
-    setActiveIp(btn.dataset.ip);
-    window.APP.matrixW = parseInt(btn.dataset.w)||64;
-    window.APP.matrixH = parseInt(btn.dataset.h)||64;
-    document.getElementById('ip-input-d1a2').value = btn.dataset.ip;
-    renderDevices(); populateDeviceDropdown();
-    showToast('Active device set: '+btn.dataset.ip, 'success');
-  }));
-
   // Active summary
-  const summary = document.getElementById('active-dev-info-e3f4');
+  const summary = $('#active-dev-info-e3f4');
   const all = [...d.matrices.map(m=>({...m,type:'Matrix'})), ...d.strings.map(s=>({...s,type:'String',width:1,height:s.n}))];
   const active = all.find(x => x.id === d.activeId);
   if (active) {
     const w = active.width||1, h = active.height||active.n||0;
-    summary.innerHTML = active.type+' · <strong>'+active.name+'</strong> · '+active.ip+' · '+w+'×'+h+' · <button class="abtn abtn-ghost abtn-sm" id="summary-go-dash" style="display:inline;">→ Dashboard</button>';
-    const goBtn = document.getElementById('summary-go-dash');
-    if (goBtn) goBtn.addEventListener('click', () => { setActiveIp(active.ip); document.getElementById('ip-input-d1a2').value = active.ip; showPage('dashboard'); });
+    summary.html(active.type+' · <strong>'+active.name+'</strong> · '+active.ip+' · '+w+'×'+h+' · <button class="abtn abtn-ghost abtn-sm" id="summary-go-dash" style="display:inline;">→ Dashboard</button>');
   } else {
-    summary.textContent = 'No active device set';
+    summary.text('No active device set');
   }
 }
 
+$(document).on('click', '#summary-go-dash', () => {
+  const active = loadDevices();
+  const device = [...active.matrices, ...active.strings].find(item => item.id === active.activeId);
+  if (!device) return;
+  setActiveIp(device.ip);
+  $('#ip-input-d1a2').val(device.ip);
+  showPage('dashboard');
+});
+
 // Add Matrix Form
-document.getElementById('add-matrix-q3r4').addEventListener('click', () => {
-  document.getElementById('matrix-form-s5t6').style.display = 'block';
-});
-document.getElementById('mf-cancel-g9h0').addEventListener('click', () => {
-  document.getElementById('matrix-form-s5t6').style.display = 'none';
-});
-document.getElementById('mf-save-e7f8').addEventListener('click', () => {
-  const name = document.getElementById('mf-name-u7v8').value.trim();
-  const ip = document.getElementById('mf-ip-w9x0').value.trim();
+$('#add-matrix-q3r4').on('click', () => $('#matrix-form-s5t6').show());
+$('#mf-cancel-g9h0').on('click', () => $('#matrix-form-s5t6').hide());
+$('#mf-save-e7f8').on('click', () => {
+  const name = $('#mf-name-u7v8').val().trim();
+  const ip = $('#mf-ip-w9x0').val().trim();
   if (!name||!ip) { showToast('Name and IP required','warn'); return; }
   const d = loadDevices();
-  d.matrices.push({ id:'m'+Date.now(), name, ip, width:parseInt(document.getElementById('mf-w-y1z2').value)||64, height:parseInt(document.getElementById('mf-h-a3b4').value)||64, notes:document.getElementById('mf-notes-c5d6').value });
+  d.matrices.push({ id:'m'+Date.now(), name, ip, width:parseInt($('#mf-w-y1z2').val())||64, height:parseInt($('#mf-h-a3b4').val())||64, notes:$('#mf-notes-c5d6').val() });
   saveDevices(d);
-  document.getElementById('matrix-form-s5t6').style.display = 'none';
-  document.getElementById('mf-name-u7v8').value=''; document.getElementById('mf-ip-w9x0').value=''; document.getElementById('mf-notes-c5d6').value='';
+  $('#matrix-form-s5t6').hide();
+  $('#mf-name-u7v8, #mf-ip-w9x0, #mf-notes-c5d6').val('');
   renderDevices(); populateDeviceDropdown();
 });
 
 // Add String Form
-document.getElementById('add-string-k3l4').addEventListener('click', () => {
-  document.getElementById('string-form-m5n6').style.display = 'block';
-});
-document.getElementById('sf-cancel-y7z8').addEventListener('click', () => {
-  document.getElementById('string-form-m5n6').style.display = 'none';
-});
-document.getElementById('sf-save-w5x6').addEventListener('click', () => {
-  const name = document.getElementById('sf-name-o7p8').value.trim();
-  const ip = document.getElementById('sf-ip-q9r0').value.trim();
+$('#add-string-k3l4').on('click', () => $('#string-form-m5n6').show());
+$('#sf-cancel-y7z8').on('click', () => $('#string-form-m5n6').hide());
+$('#sf-save-w5x6').on('click', () => {
+  const name = $('#sf-name-o7p8').val().trim();
+  const ip = $('#sf-ip-q9r0').val().trim();
   if (!name||!ip) { showToast('Name and IP required','warn'); return; }
   const d = loadDevices();
-  d.strings.push({ id:'s'+Date.now(), name, ip, n:parseInt(document.getElementById('sf-len-s1t2').value)||300, notes:document.getElementById('sf-notes-u3v4').value });
+  d.strings.push({ id:'s'+Date.now(), name, ip, n:parseInt($('#sf-len-s1t2').val())||300, notes:$('#sf-notes-u3v4').val() });
   saveDevices(d);
-  document.getElementById('string-form-m5n6').style.display = 'none';
-  document.getElementById('sf-name-o7p8').value=''; document.getElementById('sf-ip-q9r0').value=''; document.getElementById('sf-notes-u3v4').value='';
+  $('#string-form-m5n6').hide();
+  $('#sf-name-o7p8, #sf-ip-q9r0, #sf-notes-u3v4').val('');
   renderDevices(); populateDeviceDropdown();
 });
 

@@ -95,33 +95,33 @@ function getPlaylistsForIp(ip) {
 let plFilterByDevice = true;
 
 // Playlist tabs
-document.getElementById('pl-tab-editor-m1n2').addEventListener('click', () => {
+$('#pl-tab-editor-m1n2').on('click', () => {
   plEditorTab='editor';
-  document.getElementById('pl-editor-q5r6').style.display='block';
-  document.getElementById('pl-player-o9p0').style.display='none';
-  document.getElementById('pl-tab-editor-m1n2').classList.add('active');
-  document.getElementById('pl-tab-player-o3p4').classList.remove('active');
+  $('#pl-editor-q5r6').show();
+  $('#pl-player-o9p0').hide();
+  $('#pl-tab-editor-m1n2').addClass('active');
+  $('#pl-tab-player-o3p4').removeClass('active');
 });
-document.getElementById('pl-tab-player-o3p4').addEventListener('click', () => {
+$('#pl-tab-player-o3p4').on('click', () => {
   plEditorTab='player';
-  document.getElementById('pl-editor-q5r6').style.display='none';
-  document.getElementById('pl-player-o9p0').style.display='block';
-  document.getElementById('pl-tab-editor-m1n2').classList.remove('active');
-  document.getElementById('pl-tab-player-o3p4').classList.add('active');
+  $('#pl-editor-q5r6').hide();
+  $('#pl-player-o9p0').show();
+  $('#pl-tab-editor-m1n2').removeClass('active');
+  $('#pl-tab-player-o3p4').addClass('active');
   renderPlayerSteps();
 });
 
-document.getElementById('pl-filter-toggle-r7s8').addEventListener('click', () => {
+$('#pl-filter-toggle-r7s8').on('click', () => {
   plFilterByDevice = !plFilterByDevice;
   renderPlaylists();
 });
 
 function renderPlaylists() {
   const allPls = loadPlaylists();
-  const lib = document.getElementById('playlist-library-i7j8');
-  const empty = document.getElementById('pl-empty-state-k9l0');
-  const filterLabel = document.getElementById('pl-filter-label-p5q6');
-  const filterToggle = document.getElementById('pl-filter-toggle-r7s8');
+  const lib = $('#playlist-library-i7j8');
+  const empty = $('#pl-empty-state-k9l0');
+  const filterLabel = $('#pl-filter-label-p5q6');
+  const filterToggle = $('#pl-filter-toggle-r7s8');
 
   const ip = window.APP && window.APP.ip;
   const activeDevice = getActiveDeviceForIp(ip);
@@ -129,36 +129,37 @@ function renderPlaylists() {
     ? allPls.filter(pl => pl.targets.includes('all') || (activeDevice && pl.targets.includes(activeDevice.id)))
     : allPls;
 
-  if (filterToggle) filterToggle.textContent = plFilterByDevice ? 'Show all playlists' : 'Filter by device';
-  if (filterLabel) {
+  if (filterToggle.length) filterToggle.text(plFilterByDevice ? 'Show all playlists' : 'Filter by device');
+  if (filterLabel.length) {
     if (!plFilterByDevice) {
-      filterLabel.textContent = 'Showing: all playlists (' + allPls.length + ')';
+      filterLabel.text('Showing: all playlists (' + allPls.length + ')');
     } else if (activeDevice) {
-      filterLabel.textContent = 'Showing: playlists for ' + activeDevice.name + ' (' + activeDevice.ip + ')';
+      filterLabel.text('Showing: playlists for ' + activeDevice.name + ' (' + activeDevice.ip + ')');
     } else if (ip) {
-      filterLabel.textContent = 'Showing: "all devices" playlists (' + ip + ' is not a saved device)';
+      filterLabel.text('Showing: "all devices" playlists (' + ip + ' is not a saved device)');
     } else {
-      filterLabel.textContent = 'Showing: "all devices" playlists (not connected)';
+      filterLabel.text('Showing: "all devices" playlists (not connected)');
     }
   }
 
-  lib.innerHTML = '';
+  lib.children().not(empty).remove();
+  empty.hide();
   if (pls.length === 0) {
-    const emptyMsg = empty.querySelector('p');
-    if (emptyMsg) {
-      emptyMsg.textContent = (plFilterByDevice && allPls.length)
+    const emptyMsg = empty.find('p');
+    if (emptyMsg.length) {
+      emptyMsg.text((plFilterByDevice && allPls.length)
         ? 'No playlists assigned to this device yet'
-        : 'No playlists yet';
+        : 'No playlists yet');
     }
-    lib.appendChild(empty); empty.style.display = 'block'; return;
+    empty.show();
+    return;
   }
 
   pls.forEach(pl => {
     const isPlaying = ENGINE.running && ENGINE.playlist && ENGINE.playlist.id === pl.id;
-    const card = document.createElement('div');
-    card.className = 'acard';
-    if (isPlaying) { card.classList.add('playlist-playing'); card.style.borderLeft = '3px solid var(--amber)'; }
-    card.innerHTML = `
+    const card = $('<div>').addClass('acard');
+    if (isPlaying) card.addClass('playlist-playing').css('border-left', '3px solid var(--amber)');
+    card.html(`
       <div style="margin-bottom:6px;">
         <p style="font-weight:700;font-size:14px;">${pl.name}</p>
         <p style="font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${pl.description||''}</p>
@@ -174,39 +175,39 @@ function renderPlaylists() {
         <button class="abtn abtn-ghost abtn-sm pl-dup" data-plid="${pl.id}">Copy</button>
         <button class="abtn abtn-danger abtn-sm pl-del" data-plid="${pl.id}">Delete</button>
       </div>
-    `;
-    lib.appendChild(card);
+    `);
+    lib.append(card);
   });
-
-  lib.querySelectorAll('.pl-quick-play').forEach(btn => btn.addEventListener('click', () => {
-    const pl = loadPlaylists().find(p=>p.id===btn.dataset.plid);
-    if (pl) { ENGINE.play(pl); showToast('Playing: '+pl.name,'success'); renderPlaylists(); updateDashPlaylist(); }
-  }));
-  lib.querySelectorAll('.pl-edit').forEach(btn => btn.addEventListener('click', () => {
-    editingPlaylistId = btn.dataset.plid;
-    renderPlaylistEditor();
-  }));
-  lib.querySelectorAll('.pl-dup').forEach(btn => btn.addEventListener('click', () => {
-    const pls2 = loadPlaylists();
-    const src = pls2.find(p=>p.id===btn.dataset.plid);
-    if (src) {
-      const dup = JSON.parse(JSON.stringify(src));
-      dup.id = 'pl'+Date.now(); dup.name += ' (copy)';
-      dup.steps.forEach(s => s.id = 's'+Date.now()+Math.random().toString(36).slice(2,5));
-      pls2.push(dup); savePlaylists(pls2); renderPlaylists();
-    }
-  }));
-  lib.querySelectorAll('.pl-del').forEach(btn => btn.addEventListener('click', () => {
-    if (!confirm('Delete this playlist?')) return;
-    let pls2 = loadPlaylists().filter(p=>p.id!==btn.dataset.plid);
-    savePlaylists(pls2);
-    if (editingPlaylistId === btn.dataset.plid) { editingPlaylistId = null; renderPlaylistEditor(); }
-    renderPlaylists();
-  }));
 }
 
+$(document).on('click', '.pl-quick-play', function () {
+  const pl = loadPlaylists().find(p => p.id === $(this).data('plid'));
+  if (pl) { ENGINE.play(pl); showToast('Playing: ' + pl.name, 'success'); renderPlaylists(); updateDashPlaylist(); }
+});
+$(document).on('click', '.pl-edit', function () {
+  editingPlaylistId = $(this).data('plid');
+  renderPlaylistEditor();
+});
+$(document).on('click', '.pl-dup', function () {
+  const pls = loadPlaylists();
+  const src = pls.find(p => p.id === $(this).data('plid'));
+  if (!src) return;
+  const dup = JSON.parse(JSON.stringify(src));
+  dup.id = 'pl' + Date.now(); dup.name += ' (copy)';
+  dup.steps.forEach(s => s.id = 's' + Date.now() + Math.random().toString(36).slice(2, 5));
+  pls.push(dup); savePlaylists(pls); renderPlaylists();
+});
+$(document).on('click', '.pl-del', function () {
+  const id = $(this).data('plid');
+  if (!confirm('Delete this playlist?')) return;
+  const pls = loadPlaylists().filter(p => p.id !== id);
+  savePlaylists(pls);
+  if (editingPlaylistId === id) { editingPlaylistId = null; renderPlaylistEditor(); }
+  renderPlaylists();
+});
+
 // New playlist
-document.getElementById('new-playlist-g5h6').addEventListener('click', () => {
+$('#new-playlist-g5h6').on('click', () => {
   const pls = loadPlaylists();
   const np = { id:'pl'+Date.now(), name:'New Playlist', description:'', targets:['all'], repeat:0, shuffle:false, endPresetId:0, steps:[] };
   pls.push(np); savePlaylists(pls);
@@ -215,35 +216,34 @@ document.getElementById('new-playlist-g5h6').addEventListener('click', () => {
 });
 
 function renderPlaylistEditor() {
-  const noEdit = document.getElementById('pl-no-edit-s7t8');
-  const form = document.getElementById('pl-edit-form-u9v0');
-  if (!editingPlaylistId) { noEdit.style.display='block'; form.style.display='none'; return; }
-  noEdit.style.display='none'; form.style.display='block';
+  const noEdit = $('#pl-no-edit-s7t8');
+  const form = $('#pl-edit-form-u9v0');
+  if (!editingPlaylistId) { noEdit.show(); form.hide(); return; }
+  noEdit.hide(); form.show();
 
   const pls = loadPlaylists();
   const pl = pls.find(p=>p.id===editingPlaylistId);
   if (!pl) return;
 
-  document.getElementById('ple-name-w1x2').value = pl.name;
-  document.getElementById('ple-desc-y3z4').value = pl.description||'';
-  document.getElementById('ple-repeat-a5b6').value = pl.repeat;
-  document.getElementById('ple-shuffle-c7d8').checked = pl.shuffle;
-  document.getElementById('ple-endpreset-e9f0').value = pl.endPresetId||0;
+  $('#ple-name-w1x2').val(pl.name);
+  $('#ple-desc-y3z4').val(pl.description||'');
+  $('#ple-repeat-a5b6').val(pl.repeat);
+  $('#ple-shuffle-c7d8').prop('checked', pl.shuffle);
+  $('#ple-endpreset-e9f0').val(pl.endPresetId||0);
 
   // Targets
-  const tDiv = document.getElementById('ple-targets-g1h2');
-  tDiv.innerHTML = '';
+  const tDiv = $('#ple-targets-g1h2').empty();
   const d = loadDevices();
   const allDevs = [...d.matrices, ...d.strings];
-  const allCb = document.createElement('label');
-  allCb.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;';
-  allCb.innerHTML = '<input type="checkbox" class="ple-tgt" value="all" style="width:auto;" '+(pl.targets.includes('all')?'checked':'')+' /> All Devices';
-  tDiv.appendChild(allCb);
+  const allCb = $('<label>')
+    .css({ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', cursor: 'pointer' })
+    .html('<input type="checkbox" class="ple-tgt" value="all" style="width:auto;" '+(pl.targets.includes('all')?'checked':'')+' /> All Devices');
+  tDiv.append(allCb);
   allDevs.forEach(dev => {
-    const lb = document.createElement('label');
-    lb.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;';
-    lb.innerHTML = '<input type="checkbox" class="ple-tgt" value="'+dev.id+'" style="width:auto;" '+(pl.targets.includes(dev.id)?'checked':'')+' /> '+dev.name;
-    tDiv.appendChild(lb);
+    const lb = $('<label>')
+      .css({ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', cursor: 'pointer' })
+      .html('<input type="checkbox" class="ple-tgt" value="'+dev.id+'" style="width:auto;" '+(pl.targets.includes(dev.id)?'checked':'')+' /> '+dev.name);
+    tDiv.append(lb);
   });
 
   // Steps
@@ -251,18 +251,16 @@ function renderPlaylistEditor() {
 }
 
 function renderPlaylistSteps(pl) {
-  const list = document.getElementById('ple-step-list-m7n8');
-  list.innerHTML = '';
+  const list = $('#ple-step-list-m7n8').empty();
   if (!pl.steps.length) {
-    list.innerHTML = '<p style="font-size:12px;color:var(--muted);text-align:center;padding:16px;">No steps yet</p>';
+    list.html('<p style="font-size:12px;color:var(--muted);text-align:center;padding:16px;">No steps yet</p>');
     return;
   }
   pl.steps.forEach((step, idx) => {
-    const card = document.createElement('div');
-    card.className = 'step-card';
+    const card = $('<div>').addClass('step-card');
     const typeColor = step.type==='device_preset'?'var(--amber)':'var(--indigo)';
     const typeLabel = step.type==='device_preset'?'PRESET':'EFFECT';
-    card.innerHTML = `
+    card.html(`
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="cursor:grab;color:var(--muted);font-size:16px;">⠿</span>
         <span style="background:var(--bg);font-size:11px;padding:2px 6px;border-radius:4px;font-weight:600;">#${idx+1}</span>
@@ -304,44 +302,45 @@ function renderPlaylistSteps(pl) {
           `}
         </div>
       </div>
-    `;
-    list.appendChild(card);
+    `);
+    list.append(card);
   });
 
   // Expand/collapse
-  list.querySelectorAll('.step-expand').forEach(btn => btn.addEventListener('click', () => {
-    const det = list.querySelector('.step-details[data-idx="'+btn.dataset.idx+'"]');
-    if (det) det.style.display = det.style.display==='none'?'block':'none';
-    btn.textContent = det.style.display==='none'?'▼':'▲';
-  }));
+  list.find('.step-expand').on('click', function () {
+    const det = list.find('.step-details[data-idx="' + $(this).data('idx') + '"]');
+    if (!det.length) return;
+    det.toggle();
+    $(this).text(det.is(':visible') ? '▲' : '▼');
+  });
 
   // Delete step
-  list.querySelectorAll('.step-del').forEach(btn => btn.addEventListener('click', () => {
+  list.find('.step-del').on('click', function () {
     const pls = loadPlaylists();
     const p = pls.find(x=>x.id===editingPlaylistId);
-    if (p) { p.steps.splice(parseInt(btn.dataset.idx),1); savePlaylists(pls); renderPlaylistSteps(p); }
-  }));
+    if (p) { p.steps.splice(parseInt($(this).data('idx')),1); savePlaylists(pls); renderPlaylistSteps(p); }
+  });
 
   // Inline edits — label, duration, transition, presetId
-  list.querySelectorAll('.sd-label').forEach(el => el.addEventListener('change', () => { updateStep(el.dataset.idx, s => s.label=el.value); }));
-  list.querySelectorAll('.sd-dur').forEach(el => el.addEventListener('change', () => { updateStep(el.dataset.idx, s => s.durationMs=parseInt(el.value)||5000); }));
-  list.querySelectorAll('.sd-trans').forEach(el => el.addEventListener('change', () => { updateStep(el.dataset.idx, s => s.transitionMs=parseInt(el.value)||700); }));
-  list.querySelectorAll('.sd-pid').forEach(el => el.addEventListener('change', () => { updateStep(el.dataset.idx, s => s.presetId=parseInt(el.value)||1); }));
+  list.find('.sd-label').on('change', function () { updateStep($(this).data('idx'), s => s.label=$(this).val()); });
+  list.find('.sd-dur').on('change', function () { updateStep($(this).data('idx'), s => s.durationMs=parseInt($(this).val())||5000); });
+  list.find('.sd-trans').on('change', function () { updateStep($(this).data('idx'), s => s.transitionMs=parseInt($(this).val())||700); });
+  list.find('.sd-pid').on('change', function () { updateStep($(this).data('idx'), s => s.presetId=parseInt($(this).val())||1); });
 
   // Effect edits
-  list.querySelectorAll('.sd-fx').forEach(el => el.addEventListener('change', () => { updateStep(el.dataset.idx, s => { if(s.payload?.seg?.[0]) s.payload.seg[0].fx=parseInt(el.value); }); }));
-  list.querySelectorAll('.sd-pal').forEach(el => el.addEventListener('change', () => { updateStep(el.dataset.idx, s => { if(s.payload?.seg?.[0]) s.payload.seg[0].pal=parseInt(el.value); }); }));
-  list.querySelectorAll('.sd-bri').forEach(el => el.addEventListener('input', () => { updateStep(el.dataset.idx, s => { if(s.payload) s.payload.bri=parseInt(el.value); }); }));
-  list.querySelectorAll('.sd-sx').forEach(el => el.addEventListener('input', () => { updateStep(el.dataset.idx, s => { if(s.payload?.seg?.[0]) s.payload.seg[0].sx=parseInt(el.value); }); }));
-  list.querySelectorAll('.sd-ix').forEach(el => el.addEventListener('input', () => { updateStep(el.dataset.idx, s => { if(s.payload?.seg?.[0]) s.payload.seg[0].ix=parseInt(el.value); }); }));
+  list.find('.sd-fx').on('change', function () { updateStep($(this).data('idx'), s => { if(s.payload?.seg?.[0]) s.payload.seg[0].fx=parseInt($(this).val()); }); });
+  list.find('.sd-pal').on('change', function () { updateStep($(this).data('idx'), s => { if(s.payload?.seg?.[0]) s.payload.seg[0].pal=parseInt($(this).val()); }); });
+  list.find('.sd-bri').on('input', function () { updateStep($(this).data('idx'), s => { if(s.payload) s.payload.bri=parseInt($(this).val()); }); });
+  list.find('.sd-sx').on('input', function () { updateStep($(this).data('idx'), s => { if(s.payload?.seg?.[0]) s.payload.seg[0].sx=parseInt($(this).val()); }); });
+  list.find('.sd-ix').on('input', function () { updateStep($(this).data('idx'), s => { if(s.payload?.seg?.[0]) s.payload.seg[0].ix=parseInt($(this).val()); }); });
 
   // Color pickers
   ['sd-col1','sd-col2','sd-col3'].forEach((cls, ci) => {
-    list.querySelectorAll('.'+cls).forEach(el => el.addEventListener('input', () => {
-      updateStep(el.dataset.idx, s => {
-        if(s.payload?.seg?.[0]?.col) { const c = hexToRgb(el.value); s.payload.seg[0].col[ci] = [c.r,c.g,c.b,0]; }
+    list.find('.'+cls).on('input', function () {
+      updateStep($(this).data('idx'), s => {
+        if(s.payload?.seg?.[0]?.col) { const c = hexToRgb($(this).val()); s.payload.seg[0].col[ci] = [c.r,c.g,c.b,0]; }
       });
-    }));
+    });
   });
 }
 
@@ -361,17 +360,16 @@ function hexToRgb(hex) {
 }
 
 // Save settings
-document.getElementById('ple-save-settings-i3j4').addEventListener('click', () => {
+$('#ple-save-settings-i3j4').on('click', () => {
   const pls = loadPlaylists();
   const pl = pls.find(p=>p.id===editingPlaylistId);
   if (!pl) return;
-  pl.name = document.getElementById('ple-name-w1x2').value;
-  pl.description = document.getElementById('ple-desc-y3z4').value;
-  pl.repeat = parseInt(document.getElementById('ple-repeat-a5b6').value)||0;
-  pl.shuffle = document.getElementById('ple-shuffle-c7d8').checked;
-  pl.endPresetId = parseInt(document.getElementById('ple-endpreset-e9f0').value)||0;
-  const checked = document.querySelectorAll('.ple-tgt:checked');
-  pl.targets = Array.from(checked).map(c=>c.value);
+  pl.name = $('#ple-name-w1x2').val();
+  pl.description = $('#ple-desc-y3z4').val();
+  pl.repeat = parseInt($('#ple-repeat-a5b6').val())||0;
+  pl.shuffle = $('#ple-shuffle-c7d8').prop('checked');
+  pl.endPresetId = parseInt($('#ple-endpreset-e9f0').val())||0;
+  pl.targets = $('.ple-tgt:checked').map((_, c) => c.value).get();
   if (!pl.targets.length) pl.targets = ['all'];
   savePlaylists(pls);
   showToast('Playlist settings saved','success');
@@ -379,22 +377,18 @@ document.getElementById('ple-save-settings-i3j4').addEventListener('click', () =
 });
 
 // Step modal
-document.getElementById('ple-add-step-k5l6').addEventListener('click', () => {
-  document.getElementById('step-modal-q7r8').style.display = 'flex';
-});
-document.getElementById('close-step-modal-w3x4').addEventListener('click', () => {
-  document.getElementById('step-modal-q7r8').style.display = 'none';
-});
-document.getElementById('add-preset-step-s9t0').addEventListener('click', () => {
+$('#ple-add-step-k5l6').on('click', () => $('#step-modal-q7r8').css('display', 'flex'));
+$('#close-step-modal-w3x4').on('click', () => $('#step-modal-q7r8').hide());
+$('#add-preset-step-s9t0').on('click', () => {
   const pls = loadPlaylists();
   const pl = pls.find(p=>p.id===editingPlaylistId);
   if (pl) {
     pl.steps.push({id:'s'+Date.now(), type:'device_preset', label:'New Preset Step', presetId:1, durationMs:5000, transitionMs:700, targetOverride:null});
     savePlaylists(pls); renderPlaylistSteps(pl);
   }
-  document.getElementById('step-modal-q7r8').style.display = 'none';
+  $('#step-modal-q7r8').hide();
 });
-document.getElementById('add-effect-step-u1v2').addEventListener('click', () => {
+$('#add-effect-step-u1v2').on('click', () => {
   const pls = loadPlaylists();
   const pl = pls.find(p=>p.id===editingPlaylistId);
   if (pl) {
@@ -402,7 +396,7 @@ document.getElementById('add-effect-step-u1v2').addEventListener('click', () => 
       payload:{on:true,bri:200,transition:7,seg:[{id:0,fx:0,pal:0,sx:128,ix:128,col:[[255,160,0,0],[0,0,0,0],[0,0,0,0]]}]}});
     savePlaylists(pls); renderPlaylistSteps(pl);
   }
-  document.getElementById('step-modal-q7r8').style.display = 'none';
+  $('#step-modal-q7r8').hide();
 });
 
 // === PLAYLIST ENGINE ===
@@ -469,10 +463,8 @@ const ENGINE = {
         if (this.paused) { this.rafId = requestAnimationFrame(tick); return; }
         const elapsed = Date.now() - this.stepStart;
         const pct = Math.min(100, (elapsed/ms)*100);
-        const prog = document.getElementById('player-progress-i9j0');
-        const cd = document.getElementById('player-countdown-k1l2');
-        if (prog) prog.style.width = pct+'%';
-        if (cd) cd.textContent = Math.max(0,((ms-elapsed)/1000)).toFixed(1)+'s remaining';
+        $('#player-progress-i9j0').css('width', pct+'%');
+        $('#player-countdown-k1l2').text(Math.max(0,((ms-elapsed)/1000)).toFixed(1)+'s remaining');
         if (elapsed >= ms) resolve();
         else this.rafId = requestAnimationFrame(tick);
       };
@@ -489,7 +481,7 @@ const ENGINE = {
     updateDashPlaylist();
   },
   pause() { this.paused=true; },
-  resume() { this.paused=false; this.stepStart=Date.now()-(this.stepDuration - (parseFloat(document.getElementById('player-countdown-k1l2')?.textContent||'0')*1000)); },
+  resume() { this.paused=false; this.stepStart=Date.now()-(this.stepDuration - (parseFloat($('#player-countdown-k1l2').text()||'0')*1000)); },
   next() { if (this.abortCtl) this.abortCtl.abort(); this.abortCtl = new AbortController(); },
   prev() { this.stepIdx=Math.max(0,this.stepIdx-2); if(this.abortCtl) this.abortCtl.abort(); this.abortCtl = new AbortController(); },
 };
@@ -507,67 +499,63 @@ async function sendToAllTargets(targets, payload) {
 }
 
 function updatePlayerUI(step, idx, total) {
-  const name = document.getElementById('player-pl-name-e5f6');
-  const info = document.getElementById('player-step-info-g7h8');
+  const name = $('#player-pl-name-e5f6');
+  const info = $('#player-step-info-g7h8');
   if (!step) {
-    name.textContent = ENGINE.playlist ? ENGINE.playlist.name : '—';
-    info.textContent = ENGINE.running ? 'Playing...' : 'Stopped';
+    name.text(ENGINE.playlist ? ENGINE.playlist.name : '—');
+    info.text(ENGINE.running ? 'Playing...' : 'Stopped');
     return;
   }
-  name.textContent = ENGINE.playlist.name;
-  info.textContent = 'Step '+(idx+1)+' of '+total+' — '+step.label;
+  name.text(ENGINE.playlist.name);
+  info.text('Step '+(idx+1)+' of '+total+' — '+step.label);
 }
 
 function renderPlayerSteps() {
-  const list = document.getElementById('player-step-list-m3n4');
-  if (!ENGINE.playlist) { list.innerHTML = '<p style="font-size:12px;color:var(--muted);">No playlist loaded</p>'; return; }
-  list.innerHTML = '';
+  const list = $('#player-step-list-m3n4').empty();
+  if (!ENGINE.playlist) { list.html('<p style="font-size:12px;color:var(--muted);">No playlist loaded</p>'); return; }
   ENGINE.playlist.steps.forEach((s, i) => {
-    const div = document.createElement('div');
-    div.className = 'mini-step';
-    if (ENGINE.running && i === ENGINE.stepIdx) div.classList.add('current');
-    else if (ENGINE.running && i < ENGINE.stepIdx) div.classList.add('done');
-    div.innerHTML = `<span style="font-size:11px;font-weight:600;min-width:24px;">#${i+1}</span><span style="flex:1;font-size:12px;">${s.label}</span><span style="font-size:11px;color:var(--muted);">${(s.durationMs/1000).toFixed(1)}s</span>`;
-    list.appendChild(div);
+    const div = $('<div>').addClass('mini-step');
+    if (ENGINE.running && i === ENGINE.stepIdx) div.addClass('current');
+    else if (ENGINE.running && i < ENGINE.stepIdx) div.addClass('done');
+    div.html(`<span style="font-size:11px;font-weight:600;min-width:24px;">#${i+1}</span><span style="flex:1;font-size:12px;">${s.label}</span><span style="font-size:11px;color:var(--muted);">${(s.durationMs/1000).toFixed(1)}s</span>`);
+    list.append(div);
   });
 }
 
 function playerLog(msg) {
-  const log = document.getElementById('player-log-o5p6');
-  if (!log) return;
-  const line = document.createElement('div');
-  line.textContent = '['+new Date().toLocaleTimeString()+'] '+msg;
-  line.style.color = 'var(--amber)';
-  log.appendChild(line);
-  log.scrollTop = log.scrollHeight;
+  const log = $('#player-log-o5p6');
+  if (!log.length) return;
+  const line = $('<div>').text('['+new Date().toLocaleTimeString()+'] '+msg).css('color', 'var(--amber)');
+  log.append(line);
+  log.scrollTop(log[0].scrollHeight);
 }
 
 // Transport controls
-document.getElementById('tp-play-u5v6').addEventListener('click', () => {
-  if (ENGINE.running && !ENGINE.paused) { ENGINE.pause(); document.getElementById('tp-play-u5v6').textContent='▶'; return; }
-  if (ENGINE.running && ENGINE.paused) { ENGINE.resume(); document.getElementById('tp-play-u5v6').textContent='⏸'; return; }
+$('#tp-play-u5v6').on('click', () => {
+  if (ENGINE.running && !ENGINE.paused) { ENGINE.pause(); $('#tp-play-u5v6').text('▶'); return; }
+  if (ENGINE.running && ENGINE.paused) { ENGINE.resume(); $('#tp-play-u5v6').text('⏸'); return; }
   // Start first playlist or editing one
   const pls = loadPlaylists();
   const pl = editingPlaylistId ? pls.find(p=>p.id===editingPlaylistId) : pls[0];
   if (pl) {
     ENGINE.play(pl);
-    document.getElementById('tp-play-u5v6').textContent='⏸';
+    $('#tp-play-u5v6').text('⏸');
     renderPlaylists();
   } else { showToast('No playlist to play','warn'); }
 });
-document.getElementById('tp-stop-s3t4').addEventListener('click', () => {
+$('#tp-stop-s3t4').on('click', () => {
   ENGINE.stop();
-  document.getElementById('tp-play-u5v6').textContent='▶';
-  document.getElementById('player-progress-i9j0').style.width='0%';
-  document.getElementById('player-countdown-k1l2').textContent='0.0s remaining';
+  $('#tp-play-u5v6').text('▶');
+  $('#player-progress-i9j0').css('width', '0%');
+  $('#player-countdown-k1l2').text('0.0s remaining');
   renderPlaylists(); renderPlayerSteps();
 });
-document.getElementById('tp-next-w7x8').addEventListener('click', () => ENGINE.next());
-document.getElementById('tp-prev-q1r2').addEventListener('click', () => ENGINE.prev());
-document.getElementById('tp-shuffle-y9z0').addEventListener('click', () => {
+$('#tp-next-w7x8').on('click', () => ENGINE.next());
+$('#tp-prev-q1r2').on('click', () => ENGINE.prev());
+$('#tp-shuffle-y9z0').on('click', () => {
   if (ENGINE.playlist) { ENGINE.playlist.shuffle = !ENGINE.playlist.shuffle; showToast('Shuffle '+(ENGINE.playlist.shuffle?'ON':'OFF'),'info'); }
 });
-document.getElementById('tp-loop-a1b2').addEventListener('click', () => {
+$('#tp-loop-a1b2').on('click', () => {
   if (ENGINE.playlist) {
     ENGINE.playlist.repeat = ENGINE.playlist.repeat===0 ? 1 : 0;
     ENGINE.loopsLeft = ENGINE.playlist.repeat===0 ? Infinity : ENGINE.playlist.repeat;

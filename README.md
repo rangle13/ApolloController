@@ -12,7 +12,7 @@ apollo-controller/
 ├── docker-compose.yml     # Compose for VPS deployment
 ├── .env.example           # Environment variable template
 └── public/                # All frontend assets (served statically)
-    ├── index.html         # SPA shell — nav + all page divs
+    ├── index.html         # SPA shell — loads jQuery and the page loader
     ├── css/
     │   └── styles.css     # All custom CSS (dark theme, toggles, etc.)
     └── js/
@@ -24,6 +24,8 @@ apollo-controller/
         ├── playlist.js    # Playlist builder & player
         └── segments.js    # Segment Builder — canvas, zones, props panel
 ```
+
+The frontend uses jQuery 3.7.1 for UI interactions and DOM updates, loaded from the official jQuery CDN in `public/index.html`.
 
 ## Quick Start (Local)
 

@@ -49,37 +49,31 @@ async function deviceFetch(url, options = {}) {
 }
 
 function devLogRender() {
-    const list = document.getElementById('devlog-list');
-    if (!list) return;
-    const count = document.getElementById('devlog-count');
-    if (count) count.textContent = DEVLOG.entries.length + ' entries';
+    const list = $('#devlog-list');
+    if (!list.length) return;
+    $('#devlog-count').text(DEVLOG.entries.length + ' entries');
 
-    const stick = list.scrollTop + list.clientHeight >= list.scrollHeight - 20;
-    list.textContent = '';
+    const node = list[0];
+    const stick = node.scrollTop + node.clientHeight >= node.scrollHeight - 20;
+    list.empty();
     DEVLOG.entries.forEach(en => {
-        const d = document.createElement('details');
-        d.className = 'devlog-entry' + (en.error || (en.status && en.status >= 400) ? ' devlog-bad' : '');
-        const s = document.createElement('summary');
+        const d = $('<details>').addClass('devlog-entry');
+        if (en.error || (en.status && en.status >= 400)) d.addClass('devlog-bad');
         const t = en.ts.toLocaleTimeString([], {
             hour12: false
         }) + '.' + String(en.ts.getMilliseconds()).padStart(3, '0');
         const result = en.error ? 'ERROR' : en.status;
-        s.textContent = t + '  ' + en.method + ' ' + en.url + '  → ' + result + ' (' + en.ms + ' ms)';
-        d.appendChild(s);
+        d.append($('<summary>').text(t + '  ' + en.method + ' ' + en.url + '  → ' + result + ' (' + en.ms + ' ms)'));
         const addBlock = (label, text) => {
             if (!text) return;
-            const h = document.createElement('div');
-            h.className = 'devlog-label';
-            h.textContent = label;
-            const p = document.createElement('pre');
-            p.textContent = devLogPretty(text);
-            d.append(h, p);
+            d.append($('<div>').addClass('devlog-label').text(label));
+            d.append($('<pre>').text(devLogPretty(text)));
         };
         addBlock('Sent', en.request);
         addBlock(en.error ? 'Error' : 'Received', en.error || en.response);
-        list.appendChild(d);
+        list.append(d);
     });
-    if (stick) list.scrollTop = list.scrollHeight;
+    if (stick) list.scrollTop(node.scrollHeight);
 }
 
 function devLogEsc(s) {
@@ -103,27 +97,26 @@ function devLogAsHtml() {
         '<button id="t" onclick="var d=document.querySelectorAll(\'details\'),o=Array.from(d).some(function(x){return x.open});d.forEach(function(x){x.open=!o});this.textContent=o?\'Expand All\':\'Collapse All\'">Collapse All</button>' + rows + '</body></html>';
 }
 
-document.getElementById('devlog-collapse-btn').addEventListener('click', (e) => {
-    const items = document.querySelectorAll('#devlog-list details');
-    const open = Array.from(items).some(d => d.open);
-    items.forEach(d => {
-        d.open = !open;
-    });
-    e.target.textContent = open ? 'Expand All' : 'Collapse All';
+$('#devlog-collapse-btn').on('click', function () {
+    const items = $('#devlog-list details');
+    const open = items.toArray().some(d => d.open);
+    items.prop('open', !open);
+    $(this).text(open ? 'Expand All' : 'Collapse All');
 });
-document.getElementById('devlog-clear-btn').addEventListener('click', () => {
+$('#devlog-clear-btn').on('click', () => {
     DEVLOG.entries = [];
     devLogRender();
 });
-document.getElementById('devlog-pause').addEventListener('change', (e) => {
-    DEVLOG.paused = e.target.checked;
+$('#devlog-pause').on('change', function () {
+    DEVLOG.paused = $(this).prop('checked');
 });
-document.getElementById('devlog-download-btn').addEventListener('click', () => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([devLogAsHtml()], {
+$('#devlog-download-btn').on('click', () => {
+    const url = URL.createObjectURL(new Blob([devLogAsHtml()], {
         type: 'text/html'
     }));
-    a.download = 'device-log-' + new Date().toISOString().replace(/[:.]/g, '-') + '.html';
-    a.click();
-    URL.revokeObjectURL(a.href);
+    const a = $('<a>')
+        .attr('href', url)
+        .attr('download', 'device-log-' + new Date().toISOString().replace(/[:.]/g, '-') + '.html');
+    a[0].click();
+    URL.revokeObjectURL(url);
 });

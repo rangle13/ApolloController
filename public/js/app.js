@@ -25,9 +25,7 @@ function showToast(msg, type = 'info', duration = 2500) {
     success: '#14532d',
     error: '#7f1d1d'
   };
-  const t = document.createElement('div');
-  t.textContent = msg;
-  Object.assign(t.style, {
+  const t = $('<div>').text(msg).css({
     position: 'fixed',
     bottom: '24px',
     right: '24px',
@@ -41,9 +39,9 @@ function showToast(msg, type = 'info', duration = 2500) {
     transition: 'opacity 0.3s',
     maxWidth: '320px'
   });
-  document.body.appendChild(t);
+  $('body').append(t);
   setTimeout(() => {
-    t.style.opacity = '0';
+    t.css('opacity', '0');
     setTimeout(() => t.remove(), 300);
   }, duration);
 }
@@ -102,14 +100,9 @@ const pages = ['dashboard', 'textdelay', 'overlay', 'devices', 'playlist', 'segm
 function showPage(name) {
   window.APP.activePage = name;
   pages.forEach(p => {
-    const el = document.getElementById('page-' + p);
-    if (el) {
-      el.classList.toggle('active', p === name);
-    }
+    $('#page-' + p).toggleClass('active', p === name);
   });
-  document.querySelectorAll('.nav-tab[data-nav]').forEach(tab => {
-    tab.classList.toggle('active', tab.dataset.nav === name);
-  });
+  $('.nav-tab[data-nav]').removeClass('active').filter(`[data-nav="${name}"]`).addClass('active');
   if (name === 'overlay') {
     renderOverlayCanvas();
   }
@@ -125,8 +118,8 @@ function showPage(name) {
     syncSegProps();
   }
 }
-document.querySelectorAll('.nav-tab[data-nav]').forEach(tab => {
-  tab.addEventListener('click', () => showPage(tab.dataset.nav));
+$(document).on('click', '.nav-tab[data-nav]', function () {
+  showPage($(this).data('nav'));
 });
 
 // === PRESETS ===
@@ -430,38 +423,35 @@ const OVERLAY_PRESETS = {
 
 // Populate preset selects
 function populateSelect(selId, presetsObj) {
-  const sel = document.getElementById(selId);
-  if (!sel) return;
-  sel.innerHTML = '';
+  const sel = $('#' + selId);
+  if (!sel.length) return;
+  sel.empty();
   Object.keys(presetsObj).forEach(k => {
-    const o = document.createElement('option');
-    o.value = k;
-    o.textContent = k;
-    sel.appendChild(o);
+    sel.append($('<option>').val(k).text(k));
   });
 }
 populateSelect('preset-sel-s9t0', PRESETS);
 populateSelect('overlay-preset-sel-y5z6', OVERLAY_PRESETS);
 
 function updatePresetDesc() {
-  const sel = document.getElementById('preset-sel-s9t0');
-  const desc = document.getElementById('preset-desc-u1v2');
-  if (sel && PRESETS[sel.value]) {
-    if (desc) desc.textContent = PRESETS[sel.value].desc;
-    sel.title = PRESETS[sel.value].desc;
+  const sel = $('#preset-sel-s9t0');
+  const preset = PRESETS[sel.val()];
+  if (sel.length && preset) {
+    $('#preset-desc-u1v2').text(preset.desc);
+    sel.attr('title', preset.desc);
   }
 }
 
 function updateOverlayPresetDesc() {
-  const sel = document.getElementById('overlay-preset-sel-y5z6');
-  const desc = document.getElementById('overlay-preset-desc-a7b8');
-  if (sel && OVERLAY_PRESETS[sel.value]) {
-    if (desc) desc.textContent = OVERLAY_PRESETS[sel.value].desc;
-    sel.title = OVERLAY_PRESETS[sel.value].desc;
+  const sel = $('#overlay-preset-sel-y5z6');
+  const preset = OVERLAY_PRESETS[sel.val()];
+  if (sel.length && preset) {
+    $('#overlay-preset-desc-a7b8').text(preset.desc);
+    sel.attr('title', preset.desc);
   }
 }
-document.getElementById('preset-sel-s9t0').addEventListener('change', updatePresetDesc);
-document.getElementById('overlay-preset-sel-y5z6').addEventListener('change', updateOverlayPresetDesc);
+$('#preset-sel-s9t0').on('change', updatePresetDesc);
+$('#overlay-preset-sel-y5z6').on('change', updateOverlayPresetDesc);
 updatePresetDesc();
 updateOverlayPresetDesc();
 

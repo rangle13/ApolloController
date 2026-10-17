@@ -1,5 +1,5 @@
 // Injects HTML partials, then loads page scripts in order (they expect the DOM to exist).
-(async function () {
+$(function () {
     const PAGES = ['dashboard', 'textdelay', 'overlay', 'devices', 'playlist', 'segments', 'log'];
     const SCRIPTS = ['devlog', 'app', 'dashboard', 'textdelay', 'overlay', 'devices', 'playlist', 'segments'];
 
@@ -10,26 +10,22 @@
     };
 
     const loadScript = (src) => new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = src;
-        s.onload = resolve;
-        s.onerror = () => reject(new Error('Failed to load ' + src));
-        document.body.appendChild(s);
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = () => reject(new Error('Failed to load ' + src));
+        document.body.appendChild(script);
     });
 
-    if (document.readyState === 'loading') {
-        await new Promise((r) => document.addEventListener('DOMContentLoaded', r, {
-            once: true
-        }));
-    }
+    (async () => {
+        const [nav, footer, ...pages] = await Promise.all(['navbar', 'footer', ...PAGES].map(load));
+        $('#app-nav').html(nav);
+        $('#app-pages').html(pages.join('\n'));
+        $('#app-footer').html(footer);
 
-    const [nav, footer, ...pages] = await Promise.all(['navbar', 'footer', ...PAGES].map(load));
-    document.getElementById('app-nav').innerHTML = nav;
-    document.getElementById('app-pages').innerHTML = pages.join('\n');
-    document.getElementById('app-footer').innerHTML = footer;
-
-    for (const name of SCRIPTS) await loadScript('/js/' + name + '.js');
-})().catch((e) => {
-    console.error(e);
-    document.body.insertAdjacentHTML('afterbegin', '<p style="color:#ef4444;padding:16px;">' + e.message + '</p>');
+        for (const name of SCRIPTS) await loadScript('/js/' + name + '.js');
+    })().catch((e) => {
+        console.error(e);
+        $('body').prepend($('<p>').css({ color: '#ef4444', padding: '16px' }).text(e.message));
+    });
 });
