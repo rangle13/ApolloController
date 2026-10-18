@@ -1,9 +1,9 @@
 <!-- ====================== PAGE 5: PLAYLIST ====================== -->
 <div data-id="210" id="page-playlist" class="page">
   <h2 data-id="211" style="font-size:20px;font-weight:700;margin-bottom:16px;">Playlist Manager</h2>
-  <div data-id="212" style="display:flex;gap:16px;flex-wrap:wrap;">
+  <div data-id="212" class="pl-layout">
     <!-- Left: Library -->
-    <div data-id="213" style="width:320px;flex-shrink:0;">
+    <div data-id="213" class="pl-lib">
       <div data-id="214" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <h3 data-id="215" style="font-size:16px;font-weight:700;">Playlists</h3>
         <button data-id="216" class="abtn abtn-amber abtn-sm" id="new-playlist-g5h6">＋ New</button>
@@ -12,7 +12,7 @@
         <span id="pl-filter-label-p5q6" style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Showing: all playlists</span>
         <button class="abtn abtn-ghost abtn-sm" id="pl-filter-toggle-r7s8" style="padding:2px 8px;font-size:11px;flex-shrink:0;">Filter by device</button>
       </div>
-      <div data-id="217" id="playlist-library-i7j8" style="display:flex;flex-direction:column;gap:10px;">
+      <div data-id="217" id="playlist-library-i7j8" style="display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 220px);overflow-y:auto;">
         <div data-id="218" id="pl-empty-state-k9l0" style="text-align:center;padding:40px 0;">
           <i data-id="219" data-lucide="list-music" class="icon-lg" style="color:var(--muted);margin:0 auto 10px;display:block;"></i>
           <p data-id="220" style="font-size:13px;color:var(--muted);">No playlists yet</p>
@@ -20,7 +20,7 @@
       </div>
     </div>
     <!-- Right: Editor/Player -->
-    <div data-id="221" style="flex:1;min-width:320px;">
+    <div data-id="221" class="pl-right">
       <div data-id="222" style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--border);">
         <button data-id="223" class="nav-tab active" id="pl-tab-editor-m1n2" data-pltab="editor">Editor</button>
         <button data-id="224" class="nav-tab" id="pl-tab-player-o3p4" data-pltab="player">Player</button>
@@ -31,8 +31,8 @@
         <div data-id="226" id="pl-no-edit-s7t8" style="text-align:center;padding:40px 0;">
           <p data-id="227" style="font-size:13px;color:var(--muted);">Select or create a playlist to edit</p>
         </div>
-        <div data-id="228" id="pl-edit-form-u9v0" style="display:none;">
-          <div data-id="229" class="acard" style="margin-bottom:12px;">
+        <div data-id="228" id="pl-edit-form-u9v0" class="pl-edit-grid" style="display:none;">
+          <div data-id="229" class="acard">
             <h4 data-id="230" style="font-size:14px;font-weight:700;margin-bottom:10px;">Playlist Settings</h4>
             <div data-id="231" style="display:grid;gap:8px;">
               <div data-id="232"><label data-id="233" style="font-size:12px;color:var(--muted);">Name</label><input data-id="234" type="text" id="ple-name-w1x2" /></div>

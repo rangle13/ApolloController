@@ -95,7 +95,7 @@ async function wledPost(payload, ipOverride) {
 }
 
 // === NAVIGATION ===
-const pages = ['dashboard', 'textdelay', 'overlay', 'devices', 'playlist', 'segments', 'log'];
+const pages = ['dashboard', 'textdelay', 'devices', 'playlist', 'segments', 'presets', 'log'];
 
 function showPage(name) {
   window.APP.activePage = name;
@@ -103,9 +103,6 @@ function showPage(name) {
     $('#page-' + p).toggleClass('active', p === name);
   });
   $('.nav-tab[data-nav]').removeClass('active').filter(`[data-nav="${name}"]`).addClass('active');
-  if (name === 'overlay') {
-    renderOverlayCanvas();
-  }
   if (name === 'devices') {
     renderDevices();
   }
@@ -116,6 +113,9 @@ function showPage(name) {
     renderSegCanvas();
     renderSegLayerList();
     syncSegProps();
+  }
+  if (name === 'presets' && typeof prFetchPresets === 'function' && !Object.keys(prList).length) {
+    prFetchPresets();
   }
 }
 $(document).on('click', '.nav-tab[data-nav]', function () {

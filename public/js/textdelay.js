@@ -48,5 +48,3 @@ async function runSequence() {
 
 $('#seq-run-k3l4').on('click', runSequence);
 $('#seq-stop-m5n6').on('click', () => { seqAbort = true; });
-
-// === OVERLAY BUILDER ===

@@ -1,7 +1,7 @@
 // Injects HTML partials, then loads page scripts in order (they expect the DOM to exist).
 $(function () {
-    const PAGES = ['dashboard', 'textdelay', 'overlay', 'devices', 'playlist', 'segments', 'log'];
-    const SCRIPTS = ['devlog', 'app', 'dashboard', 'textdelay', 'overlay', 'devices', 'playlist', 'segments'];
+    const PAGES = ['dashboard', 'textdelay', 'devices', 'playlist', 'segments', 'presets', 'log'];
+    const SCRIPTS = ['devlog', 'app', 'dashboard', 'textdelay', 'devices', 'playlist', 'segments', 'presets'];
 
     const load = async (name) => {
         const res = await fetch('/partials/' + name + '.html');

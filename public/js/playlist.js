@@ -157,20 +157,19 @@ function renderPlaylists() {
 
   pls.forEach(pl => {
     const isPlaying = ENGINE.running && ENGINE.playlist && ENGINE.playlist.id === pl.id;
-    const card = $('<div>').addClass('acard');
+    const card = $('<div>').addClass('acard pl-card');
     if (isPlaying) card.addClass('playlist-playing').css('border-left', '3px solid var(--amber)');
+    if (pl.id === editingPlaylistId) card.addClass('pl-card-active');
     card.html(`
-      <div style="margin-bottom:6px;">
-        <p style="font-weight:700;font-size:14px;">${pl.name}</p>
-        <p style="font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${pl.description||''}</p>
+      <div class="pl-card-head">
+        <span class="pl-card-name">${pl.name}</span>
+        <span class="pl-chip">${pl.steps.length} steps</span>
+        <span class="pl-chip">${pl.repeat===0?'∞':'×'+pl.repeat}</span>
+        ${pl.shuffle?'<span class="pl-chip">🔀</span>':''}
       </div>
-      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
-        <span style="font-size:11px;background:var(--bg);padding:2px 6px;border-radius:4px;">${pl.steps.length} steps</span>
-        <span style="font-size:11px;background:var(--bg);padding:2px 6px;border-radius:4px;">${pl.repeat===0?'∞':'×'+pl.repeat}</span>
-        ${pl.shuffle?'<span style="font-size:11px;background:var(--bg);padding:2px 6px;border-radius:4px;">🔀</span>':''}
-      </div>
-      <div style="display:flex;gap:6px;">
-        <button class="abtn abtn-amber abtn-sm pl-quick-play" data-plid="${pl.id}">▶ Play</button>
+      ${pl.description ? `<p class="pl-card-desc">${pl.description}</p>` : ''}
+      <div class="pl-card-btns">
+        <button class="abtn abtn-amber abtn-sm pl-quick-play" data-plid="${pl.id}" title="Play">▶</button>
         <button class="abtn abtn-ghost abtn-sm pl-edit" data-plid="${pl.id}">✎ Edit</button>
         <button class="abtn abtn-ghost abtn-sm pl-dup" data-plid="${pl.id}">Copy</button>
         <button class="abtn abtn-danger abtn-sm pl-del" data-plid="${pl.id}">Delete</button>
@@ -187,6 +186,7 @@ $(document).on('click', '.pl-quick-play', function () {
 $(document).on('click', '.pl-edit', function () {
   editingPlaylistId = $(this).data('plid');
   renderPlaylistEditor();
+  renderPlaylists();
 });
 $(document).on('click', '.pl-dup', function () {
   const pls = loadPlaylists();

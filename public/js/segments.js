@@ -26,7 +26,6 @@ function addSegZone() {
   segZones.push({
     id,
     name: 'Seg-' + (segZones.length),
-    color: colors[segZones.length % colors.length],
     x1: 0,
     y1: 0,
     x2: 16,
@@ -35,11 +34,11 @@ function addSegZone() {
     locked: false,
     mi: 0,
     fx: 0,
-    pal: 0,
+    pal: 5,
     bri: 200,
     sx: 128,
     ix: 128,
-    col1: '#ffffff',
+    col1: colors[segZones.length % colors.length],
     col2: '#000000',
     col3: '#000000',
     on: true,
@@ -77,11 +76,11 @@ function renderSegCanvas() {
       top: top + 'px',
       width: w + 'px',
       height: h + 'px',
-      background: seg.color + (isActive ? '66' : '33'),
-      border: (isActive ? '2' : '1') + 'px solid ' + seg.color,
+      background: seg.col1,
+      border: (isActive ? '2' : '1') + 'px solid ' + seg.col1,
       outline: isActive ? '2px solid #f59e0b' : 'none',
       zIndex: isActive ? '10' : '1',
-      opacity: isActive ? '1' : '0.3',
+      opacity: isActive ? '1' : '0.6',
       cursor: isActive ? 'move' : 'default',
       pointerEvents: (seg.locked || !isActive) ? 'none' : 'auto',
       borderRadius: '2px',
@@ -175,6 +174,10 @@ $(segCanvas).on('mousedown', (e) => {
   renderSegLayerList();
   syncSegProps();
 });
+
+function clamp(v, mn, mx) {
+  return Math.max(mn, Math.min(mx, v));
+}
 
 // Seg drag state
 let segDrag = {
@@ -309,7 +312,7 @@ function renderSegLayerList() {
   segZones.forEach((seg, idx) => {
     const row = $('<div>').addClass('layer-row seg-layer-row' + (seg.id === selectedSegId ? ' selected' : ''));
     row.html(`
-      <span style="width:12px;height:12px;border-radius:2px;background:${seg.color};display:inline-block;flex-shrink:0;"></span>
+      <span style="width:12px;height:12px;border-radius:2px;background:${seg.col1};display:inline-block;flex-shrink:0;"></span>
       <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px;font-size:12px;">${seg.name}</span>
       <button class="sl-vis" data-idx="${idx}" style="background:none;border:none;cursor:pointer;font-size:12px;padding:2px;" title="Toggle visibility">${seg.visible?'👁':'👁'}</button>
       <button class="sl-lock" data-idx="${idx}" style="background:none;border:none;cursor:pointer;font-size:12px;padding:2px;${seg.locked?'color:var(--amber);':''}" title="Toggle lock">🔒</button>
@@ -382,11 +385,15 @@ function syncSegProps() {
   empty.hide();
   form.show();
   $('#sp-name').val(seg.name);
-  $('#sp-color').val(seg.color);
   $('#sp-x1').val(seg.x1);
   $('#sp-x2').val(seg.x2);
   $('#sp-y1').val(seg.y1);
   $('#sp-y2').val(seg.y2);
+  // Fetched effects/palettes may not be in the dropdown; add them so the value isn't lost (NaN -> null in JSON)
+  ['#sp-fx', '#sp-pal'].forEach(sel => {
+    const v = sel === '#sp-fx' ? seg.fx : seg.pal;
+    if (!$(sel + ' option[value="' + v + '"]').length) $(sel).append(new Option(v + ' – (device)', v));
+  });
   $('#sp-fx').val(seg.fx);
   $('#sp-pal').val(seg.pal);
   $('#sp-bri').val(seg.bri);
@@ -409,7 +416,6 @@ function updateFromSegProps() {
   const seg = segZones.find(s => s.id === selectedSegId);
   if (!seg) return;
   seg.name = $('#sp-name').val();
-  seg.color = $('#sp-color').val();
   seg.x1 = parseInt($('#sp-x1').val()) || 0;
   seg.x2 = parseInt($('#sp-x2').val()) || 1;
   seg.y1 = parseInt($('#sp-y1').val()) || 0;
@@ -438,6 +444,7 @@ function segZoneToWled(seg, idx) {
   // WLED 2D API: start/stop = X column range, startY/stopY = Y row range
   return {
     id: idx,
+    n: seg.name,
     start: seg.x1, // X start column (inclusive)
     stop: seg.x2, // X stop column (exclusive)
     startY: seg.y1, // Y start row (inclusive)
@@ -469,7 +476,7 @@ function updateSegStatus() {
 }
 
 // Wire up all property inputs
-['sp-name', 'sp-color', 'sp-x1', 'sp-x2', 'sp-y1', 'sp-y2', 'sp-fx', 'sp-pal', 'sp-bri', 'sp-sx', 'sp-ix', 'sp-col1', 'sp-col2', 'sp-col3', 'sp-on', 'sp-rev', 'sp-mi'].forEach(id => {
+['sp-name', 'sp-x1', 'sp-x2', 'sp-y1', 'sp-y2', 'sp-fx', 'sp-pal', 'sp-bri', 'sp-sx', 'sp-ix', 'sp-col1', 'sp-col2', 'sp-col3', 'sp-on', 'sp-rev', 'sp-mi'].forEach(id => {
   $('#' + id).on('input change', updateFromSegProps);
 });
 
@@ -526,16 +533,37 @@ $('#sp-json-btn').on('click', () => {
   }
 });
 
-$('#seg-apply-btn').on('click', () => {
+$('#seg-add-preset-btn').on('click', () => {
+  const pick = segZones.map((z, i) => ({ ...z, devId: i }));
+  if (!pick.length) { showToast('⚠ No segments on the canvas', 'warn'); return; }
+  const name = prompt('Preset name:', 'New Preset');
+  if (name === null) return;
+  prNew();
+  prCur.name = name.trim() || 'New Preset';
+  const n = prAddFromSegZones(pick);
+  showPage('presets');
+  showToast('✓ Preset "' + prCur.name + '" created with ' + n + ' segment(s)', 'success');
+});
+
+$('#seg-apply-btn').on('click', async () => {
   if (segZones.length === 0) {
     showToast('⚠ No segments to push', 'warn');
     return;
   }
   const payload = {
     on: true,
-    seg: segZones.filter(s => s.visible).map((s, i) => segZoneToWled(s, i))
+    seg: segZones.map((s, i) => {
+      const w = segZoneToWled(s, i);
+      if (!s.visible) w.on = false;
+      return w;
+    })
   };
-  wledPost(payload);
+  if (await wledPost(payload)) {
+    // Read back so the Log page shows what the device actually holds
+    try {
+      await deviceFetch('http://' + window.APP.ip + '/json/state');
+    } catch (_) {}
+  }
 });
 
 $('#seg-fetch-btn').on('click', async () => {
@@ -557,7 +585,6 @@ $('#seg-fetch-btn').on('click', async () => {
       showToast('⚠ No segments found on device', 'warn');
       return;
     }
-    const colors = ['#6366f1', '#f59e0b', '#22c55e', '#ef4444', '#ec4899', '#14b8a6'];
     segZones = segs.map((s, i) => {
       function rgbToHex(arr) {
         if (!arr || arr.length < 3) return '#ffffff';
@@ -573,7 +600,6 @@ $('#seg-fetch-btn').on('click', async () => {
       return {
         id: 'seg-' + (segIdCounter++),
         name: s.n || ('Seg-' + i),
-        color: colors[i % colors.length],
         x1,
         y1,
         x2,
@@ -630,11 +656,8 @@ function initApp() {
     }
   }
   populateDeviceDropdown();
-  renderOverlayCanvas();
   renderSegCanvas();
   renderSegLayerList();
-  renderLayerList();
-  syncPropsPanel();
   renderDevices();
   renderPlaylists();
   renderPlaylistEditor();

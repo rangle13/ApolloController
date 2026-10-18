@@ -8,6 +8,7 @@
     <div class="ov-actions">
       <button class="abtn abtn-ghost abtn-sm" id="seg-toggle-layers" title="Show/hide segments list">Segments</button>
       <button class="abtn abtn-ghost abtn-sm" id="seg-toggle-props" title="Show/hide properties">Properties</button>
+      <button class="abtn abtn-ghost abtn-sm" id="seg-add-preset-btn" title="Add selected segment (or all) to a preset">＋ Add to Preset</button>
       <button class="abtn abtn-amber abtn-sm" id="seg-apply-btn">Push Segments to Device</button>
       <button class="abtn abtn-ghost abtn-sm" id="seg-fetch-btn">Fetch from Device</button>
       <button class="abtn abtn-ghost abtn-sm" id="seg-reset-btn">Reset All</button>
@@ -50,15 +51,12 @@
         </div>
         <div id="seg-props-form" style="display:none;">
           <div class="prow"><label>Name</label><input type="text" id="sp-name" /></div>
-          <div class="prow"><label>Color</label><input type="color" id="sp-color" value="#6366f1" /></div>
           <div class="prow-2">
             <div class="prow"><label>X Start</label><input type="number" id="sp-x1" min="0" /></div>
             <div class="prow"><label>X Stop</label><input type="number" id="sp-x2" min="1" /></div>
             <div class="prow"><label>Y Start</label><input type="number" id="sp-y1" min="0" /></div>
             <div class="prow"><label>Y Stop</label><input type="number" id="sp-y2" min="1" /></div>
           </div>
-          <hr style="border-color:var(--border);margin:6px 0;" />
-          <p style="font-size:10px;color:var(--muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">WLED Effect</p>
           <div class="prow">
             <label>Effect</label>
             <select id="sp-fx">
@@ -124,6 +122,7 @@
               <option value="0">0 – Default</option>
               <option value="1">1 – Random</option>
               <option value="2">2 – Primary</option>
+              <option value="5">5 – Colors Only</option>
               <option value="6">6 – Party</option>
               <option value="7">7 – Cloud</option>
               <option value="8">8 – Lava</option>

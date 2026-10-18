@@ -19,7 +19,6 @@ apollo-controller/
         ├── app.js         # Global state, toast, WLED API, navigation, presets
         ├── dashboard.js   # Dashboard page events & controls
         ├── textdelay.js   # Text Delay page logic
-        ├── overlay.js     # Overlay Builder — canvas, boxes, props panel
         ├── devices.js     # Device management (add/edit/delete matrices & strings)
         ├── playlist.js    # Playlist builder & player
         └── segments.js    # Segment Builder — canvas, zones, props panel
